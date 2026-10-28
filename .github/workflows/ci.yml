@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality (translations + format)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install clang-format
+        run: sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y clang-format
+      - name: Check translation catalogs
+        run: python scripts/check_translations.py
+      - name: Check clang-format
+        run: python scripts/check_clang_format.py
+
+  linux:
+    name: Build & test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      MS3D_DEV_ROOT: ${{ github.workspace }}/.deps
+      QT_VERSION: "6.8.3"
+      CASROOT: ${{ github.workspace }}/.deps/OCCT/install
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            build-essential cmake ninja-build git python3 python3-pip \
+            libgl1-mesa-dev libxkbcommon-dev libxkbcommon-x11-dev \
+            libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+            libxcb-keysyms1 libxcb-render-util0 libdbus-1-dev \
+            libfontconfig1-dev libfreetype-dev wget p7zip-full xz-utils
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MS3D_DEV_ROOT }}/Qt
+          key: qt-${{ runner.os }}-${{ env.QT_VERSION }}-gcc_64-base-tools
+
+      - name: Install Qt (aqt)
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        run: |
+          pip install aqtinstall
+          mkdir -p "$MS3D_DEV_ROOT/Qt"
+          aqt install-qt linux desktop ${{ env.QT_VERSION }} linux_gcc_64 \
+            -O "$MS3D_DEV_ROOT/Qt" -m qttools
+          # Normalize kit path for CMAKE_PREFIX_PATH
+          if [[ -d "$MS3D_DEV_ROOT/Qt/${{ env.QT_VERSION }}/gcc_64" ]]; then
+            echo "Qt kit: gcc_64"
+          elif [[ -d "$MS3D_DEV_ROOT/Qt/${{ env.QT_VERSION }}/linux_gcc_64" ]]; then
+            ln -sfn linux_gcc_64 "$MS3D_DEV_ROOT/Qt/${{ env.QT_VERSION }}/gcc_64"
+          fi
+
+      - name: Cache OCCT
+        id: cache-occt
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MS3D_DEV_ROOT }}/OCCT/install
+          key: occt-${{ runner.os }}-V7_9_3-shared-minimal-v1
+
+      - name: Build OCCT
+        if: steps.cache-occt.outputs.cache-hit != 'true'
+        run: bash scripts/ci/build_occt.sh
+
+      - name: Configure & build
+        run: |
+          QT_ROOT="$MS3D_DEV_ROOT/Qt/${QT_VERSION}/gcc_64"
+          export PATH="$QT_ROOT/bin:$PATH"
+          export LD_LIBRARY_PATH="${CASROOT}/lib:${QT_ROOT}/lib:${LD_LIBRARY_PATH:-}"
+          OCCT_CMAKE=""
+          for d in "${CASROOT}/lib/cmake/opencascade" "${CASROOT}/cmake" "${CASROOT}/lib/cmake/OpenCASCADE"; do
+            if [[ -f "$d/OpenCASCADEConfig.cmake" ]]; then OCCT_CMAKE="$d"; break; fi
+          done
+          [[ -n "$OCCT_CMAKE" ]] || { echo "OpenCASCADEConfig.cmake not found under $CASROOT"; exit 1; }
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$QT_ROOT" \
+            -DOpenCASCADE_DIR="$OCCT_CMAKE"
+          cmake --build build
+
+      - name: Test
+        run: |
+          QT_ROOT="$MS3D_DEV_ROOT/Qt/${QT_VERSION}/gcc_64"
+          export PATH="$QT_ROOT/bin:$CASROOT/bin:$PATH"
+          export LD_LIBRARY_PATH="${CASROOT}/lib:${QT_ROOT}/lib:${LD_LIBRARY_PATH:-}"
+          ctest --test-dir build --output-on-failure --parallel 2
+
+  windows:
+    name: Build & test (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 180
+    env:
+      MS3D_DEV_ROOT: ${{ github.workspace }}/.deps
+      QT_VERSION: "6.8.3"
+      CASROOT: ${{ github.workspace }}/.deps/OCCT/install
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MS3D_DEV_ROOT }}/Qt
+          key: qt-${{ runner.os }}-${{ env.QT_VERSION }}-win64_msvc2022_64-base-tools
+
+      - name: Install Qt (aqt)
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          pip install aqtinstall
+          mkdir -p "$MS3D_DEV_ROOT/Qt"
+          aqt install-qt windows desktop ${{ env.QT_VERSION }} win64_msvc2022_64 \
+            -O "$MS3D_DEV_ROOT/Qt" -m qttools
+
+      - name: Cache OCCT
+        id: cache-occt
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.MS3D_DEV_ROOT }}/OCCT/install
+            ${{ env.MS3D_DEV_ROOT }}/OCCT/src
+          key: occt-${{ runner.os }}-V7_9_3-shared-minimal-v1
+
+      - name: Build OCCT
+        if: steps.cache-occt.outputs.cache-hit != 'true'
+        shell: bash
+        run: bash scripts/ci/build_occt.sh
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure & build
+        shell: pwsh
+        run: |
+          $qtRoot = Join-Path $env:MS3D_DEV_ROOT "Qt/$env:QT_VERSION/msvc2022_64"
+          $env:PATH = "$qtRoot\bin;$env:CASROOT\win64\vc14\bin;$env:CASROOT\bin;$env:PATH"
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=$qtRoot"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build
+          exit $LASTEXITCODE
+
+      - name: Test
+        shell: pwsh
+        run: |
+          $qtRoot = Join-Path $env:MS3D_DEV_ROOT "Qt/$env:QT_VERSION/msvc2022_64"
+          $env:PATH = "$qtRoot\bin;$env:CASROOT\win64\vc14\bin;$env:CASROOT\bin;$env:PATH"
+          ctest --test-dir build --output-on-failure --parallel 2
+          exit $LASTEXITCODE

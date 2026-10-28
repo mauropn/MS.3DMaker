@@ -25,6 +25,15 @@ Prepare MS3DMaker for external contributions: docs, conventions, quality gates, 
 
 Secrets are not printed. Workflows do **not** create releases or upload binaries ([RELEASE.md](../RELEASE.md)).
 
+### Publishing the workflow file
+
+GitHub rejects pushes of `.github/workflows/*` unless the credential has the **`workflow`** OAuth scope. If `git push` fails with that message:
+
+```powershell
+gh auth refresh -h github.com -s workflow
+git push origin main
+```
+
 ## Verify locally
 
 ```bash
