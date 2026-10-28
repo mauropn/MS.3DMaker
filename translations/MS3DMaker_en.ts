@@ -157,6 +157,143 @@
         <source>Could not create or display the boolean intersect.</source>
         <translation>Could not create or display the boolean intersect.</translation>
     </message>
+    <message>
+        <source>Sketch</source>
+        <translation>Sketch</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Select</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Line</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>Circle</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Rectangle</translation>
+    </message>
+    <message>
+        <source>Plane XY</source>
+        <translation>Plane XY</translation>
+    </message>
+    <message>
+        <source>Plane XZ</source>
+        <translation>Plane XZ</translation>
+    </message>
+    <message>
+        <source>Plane YZ</source>
+        <translation>Plane YZ</translation>
+    </message>
+    <message>
+        <source>Make Horizontal</source>
+        <translation>Make Horizontal</translation>
+    </message>
+    <message>
+        <source>Make Vertical</source>
+        <translation>Make Vertical</translation>
+    </message>
+    <message>
+        <source>Validate Sketch</source>
+        <translation>Validate Sketch</translation>
+    </message>
+    <message>
+        <source>Clear Sketch</source>
+        <translation>Clear Sketch</translation>
+    </message>
+    <message>
+        <source>Sketch select: click an entity</source>
+        <translation>Sketch select: click an entity</translation>
+    </message>
+    <message>
+        <source>Sketch line: click two points on the plane</source>
+        <translation>Sketch line: click two points on the plane</translation>
+    </message>
+    <message>
+        <source>Sketch circle: center, then radius point</source>
+        <translation>Sketch circle: center, then radius point</translation>
+    </message>
+    <message>
+        <source>Sketch rectangle: corner, then opposite corner</source>
+        <translation>Sketch rectangle: corner, then opposite corner</translation>
+    </message>
+    <message>
+        <source>Sketch plane: %1</source>
+        <translation>Sketch plane: %1</translation>
+    </message>
+    <message>
+        <source>Select a line first</source>
+        <translation>Select a line first</translation>
+    </message>
+    <message>
+        <source>Horizontal constraint requires a line</source>
+        <translation>Horizontal constraint requires a line</translation>
+    </message>
+    <message>
+        <source>Vertical constraint requires a line</source>
+        <translation>Vertical constraint requires a line</translation>
+    </message>
+    <message>
+        <source>Applied horizontal constraint</source>
+        <translation>Applied horizontal constraint</translation>
+    </message>
+    <message>
+        <source>Applied vertical constraint</source>
+        <translation>Applied vertical constraint</translation>
+    </message>
+    <message>
+        <source>Sketch validation</source>
+        <translation>Sketch validation</translation>
+    </message>
+    <message>
+        <source>Sketch is valid (%1 entities, %2 constraints, %3 dimensions).</source>
+        <translation>Sketch is valid (%1 entities, %2 constraints, %3 dimensions).</translation>
+    </message>
+    <message>
+        <source>Sketch valid</source>
+        <translation>Sketch valid</translation>
+    </message>
+    <message>
+        <source>Sketch has problems:
+%1</source>
+        <translation>Sketch has problems:
+%1</translation>
+    </message>
+    <message>
+        <source>Sketch validation failed</source>
+        <translation>Sketch validation failed</translation>
+    </message>
+    <message>
+        <source>Sketch cleared</source>
+        <translation>Sketch cleared</translation>
+    </message>
+    <message>
+        <source>No sketch entity selected</source>
+        <translation>No sketch entity selected</translation>
+    </message>
+    <message>
+        <source>Selected %1 (id %2)</source>
+        <translation>Selected %1 (id %2)</translation>
+    </message>
+</context>
+<context>
+    <name>ms3d::viewport::OcctView</name>
+    <message>
+        <source>Could not pick a point on the sketch plane</source>
+        <translation>Could not pick a point on the sketch plane</translation>
+    </message>
+    <message>
+        <source>Sketch: click second point to finish</source>
+        <translation>Sketch: click second point to finish</translation>
+    </message>
+    <message>
+        <source>Sketch entity created (id %1)</source>
+        <translation>Sketch entity created (id %1)</translation>
+    </message>
 </context>
 <context>
     <name>ms3d::ui::PreferencesDialog</name>

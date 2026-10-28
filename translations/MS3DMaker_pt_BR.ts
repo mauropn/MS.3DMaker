@@ -157,6 +157,143 @@
         <source>Could not create or display the boolean intersect.</source>
         <translation>Não foi possível criar ou exibir a interseção booleana.</translation>
     </message>
+    <message>
+        <source>Sketch</source>
+        <translation>Esboço</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Selecionar</translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation>Linha</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>Círculo</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>Retângulo</translation>
+    </message>
+    <message>
+        <source>Plane XY</source>
+        <translation>Plano XY</translation>
+    </message>
+    <message>
+        <source>Plane XZ</source>
+        <translation>Plano XZ</translation>
+    </message>
+    <message>
+        <source>Plane YZ</source>
+        <translation>Plano YZ</translation>
+    </message>
+    <message>
+        <source>Make Horizontal</source>
+        <translation>Tornar horizontal</translation>
+    </message>
+    <message>
+        <source>Make Vertical</source>
+        <translation>Tornar vertical</translation>
+    </message>
+    <message>
+        <source>Validate Sketch</source>
+        <translation>Validar esboço</translation>
+    </message>
+    <message>
+        <source>Clear Sketch</source>
+        <translation>Limpar esboço</translation>
+    </message>
+    <message>
+        <source>Sketch select: click an entity</source>
+        <translation>Seleção de esboço: clique em uma entidade</translation>
+    </message>
+    <message>
+        <source>Sketch line: click two points on the plane</source>
+        <translation>Linha: clique em dois pontos no plano</translation>
+    </message>
+    <message>
+        <source>Sketch circle: center, then radius point</source>
+        <translation>Círculo: centro e depois ponto do raio</translation>
+    </message>
+    <message>
+        <source>Sketch rectangle: corner, then opposite corner</source>
+        <translation>Retângulo: canto e depois canto oposto</translation>
+    </message>
+    <message>
+        <source>Sketch plane: %1</source>
+        <translation>Plano do esboço: %1</translation>
+    </message>
+    <message>
+        <source>Select a line first</source>
+        <translation>Selecione uma linha primeiro</translation>
+    </message>
+    <message>
+        <source>Horizontal constraint requires a line</source>
+        <translation>A restrição horizontal exige uma linha</translation>
+    </message>
+    <message>
+        <source>Vertical constraint requires a line</source>
+        <translation>A restrição vertical exige uma linha</translation>
+    </message>
+    <message>
+        <source>Applied horizontal constraint</source>
+        <translation>Restrição horizontal aplicada</translation>
+    </message>
+    <message>
+        <source>Applied vertical constraint</source>
+        <translation>Restrição vertical aplicada</translation>
+    </message>
+    <message>
+        <source>Sketch validation</source>
+        <translation>Validação do esboço</translation>
+    </message>
+    <message>
+        <source>Sketch is valid (%1 entities, %2 constraints, %3 dimensions).</source>
+        <translation>Esboço válido (%1 entidades, %2 restrições, %3 cotas).</translation>
+    </message>
+    <message>
+        <source>Sketch valid</source>
+        <translation>Esboço válido</translation>
+    </message>
+    <message>
+        <source>Sketch has problems:
+%1</source>
+        <translation>O esboço tem problemas:
+%1</translation>
+    </message>
+    <message>
+        <source>Sketch validation failed</source>
+        <translation>Falha na validação do esboço</translation>
+    </message>
+    <message>
+        <source>Sketch cleared</source>
+        <translation>Esboço limpo</translation>
+    </message>
+    <message>
+        <source>No sketch entity selected</source>
+        <translation>Nenhuma entidade de esboço selecionada</translation>
+    </message>
+    <message>
+        <source>Selected %1 (id %2)</source>
+        <translation>Selecionado: %1 (id %2)</translation>
+    </message>
+</context>
+<context>
+    <name>ms3d::viewport::OcctView</name>
+    <message>
+        <source>Could not pick a point on the sketch plane</source>
+        <translation>Não foi possível capturar um ponto no plano do esboço</translation>
+    </message>
+    <message>
+        <source>Sketch: click second point to finish</source>
+        <translation>Esboço: clique no segundo ponto para concluir</translation>
+    </message>
+    <message>
+        <source>Sketch entity created (id %1)</source>
+        <translation>Entidade de esboço criada (id %1)</translation>
+    </message>
 </context>
 <context>
     <name>ms3d::ui::PreferencesDialog</name>

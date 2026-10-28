@@ -43,6 +43,9 @@ set(MS3D_SOURCES
   src/geometry/SolidFactory.h
   src/i18n/LanguageService.cpp
   src/i18n/LanguageService.h
+  src/sketch/Sketch.cpp
+  src/sketch/Sketch.h
+  src/sketch/SketchTypes.h
   src/ui/MainWindow.cpp
   src/ui/MainWindow.h
   src/ui/PreferencesDialog.cpp
@@ -159,6 +162,34 @@ if(MS3D_BUILD_TESTS)
     endforeach()
   endif()
   add_test(NAME geometry COMMAND test_geometry)
+
+  add_executable(test_sketch
+    tests/test_sketch.cpp
+    src/sketch/Sketch.cpp
+    src/sketch/Sketch.h
+    src/sketch/SketchTypes.h
+  )
+  target_include_directories(test_sketch PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_sketch PRIVATE
+    Qt6::Test
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_sketch POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_sketch>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME sketch COMMAND test_sketch)
 endif()
 
 install(TARGETS MS3DMaker RUNTIME DESTINATION bin)

@@ -14,3 +14,4 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/). Versioning w
 - Phase 3: Founder-led governance docs; license locked as MIT OR Apache-2.0 (ADR 0002 Accepted, aligned with SolidCraft)
 - Phase 4: OCCT 3D viewport (`OcctView`) with triad, view cube, orbit/pan/zoom, selection highlight; demo box solid (100×60×30 mm); `SolidFactory` + geometry tests; CMake OCCT link and Windows runtime DLL copy
 - Phase 5.1 (Milestone 2): Cylinder, sphere, extrusion, revolution, and boolean union/cut/common in `SolidFactory`; Create menu demos; `displaySolid`; expanded geometry tests; TKBO/TKBool link
+- Phase 5.2 (Milestone 3): Sketcher — plane selection, line/circle/rectangle tools, entity selection, dimensions, basic H/V/length constraints, validation; ADR 0003 (lightweight solver strategy)

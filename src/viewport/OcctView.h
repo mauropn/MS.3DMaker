@@ -1,8 +1,14 @@
 #pragma once
 
+#include "sketch/Sketch.h"
+#include "sketch/SketchTypes.h"
+
 #include <QWidget>
 #include <Standard_Handle.hxx>
 #include <TopoDS_Shape.hxx>
+
+#include <optional>
+#include <vector>
 
 class AIS_InteractiveContext;
 class AIS_Shape;
@@ -16,6 +22,8 @@ class V3d_Viewer;
 
 namespace ms3d::viewport {
 
+enum class SketchTool { None, Select, Line, Circle, Rectangle };
+
 class OcctView : public QWidget {
     Q_OBJECT
 public:
@@ -27,7 +35,20 @@ public:
     bool displayBox(double dx, double dy, double dz, QString* errorOut = nullptr);
     void fitAll();
 
+    void setSketch(ms3d::sketch::Sketch* sketch);
+    ms3d::sketch::Sketch* sketch() const { return m_sketch; }
+    void setSketchTool(SketchTool tool);
+    SketchTool sketchTool() const { return m_sketchTool; }
+    void setSketchPlane(ms3d::sketch::PlaneId plane);
+    void refreshSketchDisplay();
+    void clearSolidDisplay();
+
     Handle(AIS_InteractiveContext) context() const { return m_context; }
+
+signals:
+    void sketchChanged();
+    void sketchSelectionChanged(int entityId);
+    void statusMessage(const QString& message);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -43,6 +64,10 @@ protected:
 private:
     void redraw();
     void ensureWindowMapped();
+    bool pickSketchUv(int sx, int sy, ms3d::sketch::Vec2& uv) const;
+    bool handleSketchPress(QMouseEvent* event);
+    void clearSketchAis();
+    void selectSketchEntityAt(int sx, int sy);
 
     Handle(Aspect_DisplayConnection) m_displayConnection;
     Handle(OpenGl_GraphicDriver) m_graphicDriver;
@@ -53,6 +78,13 @@ private:
     Handle(AIS_Trihedron) m_trihedron;
     Handle(AIS_ViewCube) m_viewCube;
     Handle(AIS_Shape) m_displayedAis;
+    std::vector<Handle(AIS_Shape)> m_sketchAis;
+    std::vector<int> m_sketchAisEntityIds;
+
+    ms3d::sketch::Sketch* m_sketch = nullptr;
+    SketchTool m_sketchTool = SketchTool::None;
+    bool m_hasSketchAnchor = false;
+    ms3d::sketch::Vec2 m_sketchAnchor;
 
     bool m_initialized = false;
     Qt::MouseButton m_lastButton = Qt::NoButton;
