@@ -23,6 +23,7 @@ public:
     ~OcctView() override;
 
     bool initializeViewer(QString* errorOut = nullptr);
+    bool displaySolid(const TopoDS_Shape& shape, QString* errorOut = nullptr);
     bool displayBox(double dx, double dy, double dz, QString* errorOut = nullptr);
     void fitAll();
 
@@ -51,7 +52,7 @@ private:
     Handle(Aspect_Window) m_window;
     Handle(AIS_Trihedron) m_trihedron;
     Handle(AIS_ViewCube) m_viewCube;
-    Handle(AIS_Shape) m_boxAis;
+    Handle(AIS_Shape) m_displayedAis;
 
     bool m_initialized = false;
     Qt::MouseButton m_lastButton = Qt::NoButton;

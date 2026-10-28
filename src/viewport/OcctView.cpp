@@ -114,12 +114,42 @@ void OcctView::ensureWindowMapped()
     }
 }
 
-bool OcctView::displayBox(double dx, double dy, double dz, QString* errorOut)
+bool OcctView::displaySolid(const TopoDS_Shape& shape, QString* errorOut)
 {
     if (!initializeViewer(errorOut)) {
         return false;
     }
+    if (shape.IsNull()) {
+        if (errorOut) {
+            *errorOut = QStringLiteral("Cannot display a null shape");
+        }
+        return false;
+    }
 
+    try {
+        if (!m_displayedAis.IsNull()) {
+            m_context->Remove(m_displayedAis, Standard_False);
+            m_displayedAis.Nullify();
+        }
+
+        m_displayedAis = new AIS_Shape(shape);
+        m_displayedAis->SetColor(Quantity_NOC_DEEPSKYBLUE3);
+        m_displayedAis->SetDisplayMode(AIS_Shaded);
+        m_context->Display(m_displayedAis, Standard_False);
+        m_context->Activate(m_displayedAis, AIS_Shape::SelectionMode(TopAbs_SHAPE));
+        fitAll();
+        return true;
+    } catch (const Standard_Failure& ex) {
+        if (errorOut) {
+            *errorOut = QString::fromUtf8(ex.GetMessageString() ? ex.GetMessageString()
+                                                                : "Failed to display solid");
+        }
+        return false;
+    }
+}
+
+bool OcctView::displayBox(double dx, double dy, double dz, QString* errorOut)
+{
     const auto created = ms3d::geometry::makeBox(dx, dy, dz);
     if (!created.ok) {
         if (errorOut) {
@@ -127,27 +157,7 @@ bool OcctView::displayBox(double dx, double dy, double dz, QString* errorOut)
         }
         return false;
     }
-
-    try {
-        if (!m_boxAis.IsNull()) {
-            m_context->Remove(m_boxAis, Standard_False);
-            m_boxAis.Nullify();
-        }
-
-        m_boxAis = new AIS_Shape(created.solid);
-        m_boxAis->SetColor(Quantity_NOC_DEEPSKYBLUE3);
-        m_boxAis->SetDisplayMode(AIS_Shaded);
-        m_context->Display(m_boxAis, Standard_False);
-        m_context->Activate(m_boxAis, AIS_Shape::SelectionMode(TopAbs_SHAPE));
-        fitAll();
-        return true;
-    } catch (const Standard_Failure& ex) {
-        if (errorOut) {
-            *errorOut = QString::fromUtf8(ex.GetMessageString() ? ex.GetMessageString()
-                                                                : "Failed to display box");
-        }
-        return false;
-    }
+    return displaySolid(created.solid, errorOut);
 }
 
 void OcctView::fitAll()

@@ -59,6 +59,7 @@ target_include_directories(MS3DMaker PRIVATE
 target_link_libraries(MS3DMaker PRIVATE
   Qt6::Widgets
   TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+  TKBO TKBool TKShHealing
   TKService TKV3d TKOpenGl
 )
 if(WIN32)
@@ -143,9 +144,10 @@ if(MS3D_BUILD_TESTS)
   target_link_libraries(test_geometry PRIVATE
     Qt6::Test
     TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing
   )
   if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
-    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKShHealing)
       if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
         add_custom_command(TARGET test_geometry POST_BUILD
           COMMAND "${CMAKE_COMMAND}" -E copy_if_different

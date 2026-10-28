@@ -20,6 +20,13 @@ public slots:
     void openPreferences();
     void showAbout();
     void createDemoBox();
+    void createDemoCylinder();
+    void createDemoSphere();
+    void createDemoExtrusion();
+    void createDemoRevolution();
+    void createDemoBooleanUnion();
+    void createDemoBooleanCut();
+    void createDemoBooleanCommon();
     void fitAllView();
 
 protected:
@@ -29,8 +36,11 @@ protected:
 private:
     void retranslateUi();
     void buildUi();
+    bool showSolidResult(bool ok, const QString& error, const QString& successMessage,
+                         const QString& failMessage);
 
     QMenu* m_fileMenu = nullptr;
+    QMenu* m_createMenu = nullptr;
     QMenu* m_editMenu = nullptr;
     QMenu* m_viewMenu = nullptr;
     QMenu* m_helpMenu = nullptr;
@@ -38,6 +48,13 @@ private:
     QAction* m_quitAction = nullptr;
     QAction* m_aboutAction = nullptr;
     QAction* m_createBoxAction = nullptr;
+    QAction* m_createCylinderAction = nullptr;
+    QAction* m_createSphereAction = nullptr;
+    QAction* m_createExtrusionAction = nullptr;
+    QAction* m_createRevolutionAction = nullptr;
+    QAction* m_createBoolUnionAction = nullptr;
+    QAction* m_createBoolCutAction = nullptr;
+    QAction* m_createBoolCommonAction = nullptr;
     QAction* m_fitAllAction = nullptr;
     ms3d::viewport::OcctView* m_view = nullptr;
     bool m_demoBoxLoaded = false;

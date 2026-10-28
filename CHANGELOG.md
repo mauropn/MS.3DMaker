@@ -13,3 +13,4 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/). Versioning w
 - Phase 2: i18n foundation (`en` / `pt-BR`), `LanguageService`, Preferences language UI, ADR 0001
 - Phase 3: Founder-led governance docs; license locked as MIT OR Apache-2.0 (ADR 0002 Accepted, aligned with SolidCraft)
 - Phase 4: OCCT 3D viewport (`OcctView`) with triad, view cube, orbit/pan/zoom, selection highlight; demo box solid (100×60×30 mm); `SolidFactory` + geometry tests; CMake OCCT link and Windows runtime DLL copy
+- Phase 5.1 (Milestone 2): Cylinder, sphere, extrusion, revolution, and boolean union/cut/common in `SolidFactory`; Create menu demos; `displaySolid`; expanded geometry tests; TKBO/TKBool link
