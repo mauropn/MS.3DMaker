@@ -115,6 +115,6 @@ All smoke tests passed (scripts/run_smokes.ps1)
 |-------|--------|
 | 0 Environment | **Complete** (Windows verified; Linux script added) |
 | 1 REA + git remote | **Complete** (MCP `user-rea` ready; repo linked) |
-| 2 i18n ADR | Pending founder approval |
+| 2 i18n foundation | **Complete** — see `phase2-i18n.md` + ADR 0001 |
 | 3 License + governance | Pending founder approval |
 | 4 First CAD prototype | Pending founder approval |
