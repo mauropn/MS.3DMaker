@@ -14,9 +14,7 @@
 
 namespace ms3d::ui {
 
-AiAssistDialog::AiAssistDialog(QWidget* parent)
-    : QDialog(parent)
-{
+AiAssistDialog::AiAssistDialog(QWidget* parent) : QDialog(parent) {
     auto* root = new QVBoxLayout(this);
 
     m_promptLabel = new QLabel(this);
@@ -58,10 +56,10 @@ AiAssistDialog::AiAssistDialog(QWidget* parent)
     retranslateUi();
 }
 
-void AiAssistDialog::retranslateUi()
-{
+void AiAssistDialog::retranslateUi() {
     setWindowTitle(tr("AI Assist"));
-    m_promptLabel->setText(tr("Describe what to create (constrained planner — no arbitrary code):"));
+    m_promptLabel->setText(
+        tr("Describe what to create (constrained planner — no arbitrary code):"));
     m_generateButton->setText(tr("Generate plan"));
     m_planLabel->setText(tr("Proposed operations (preview — confirm to execute):"));
     m_notesLabel->setText(tr("Notes"));
@@ -69,13 +67,11 @@ void AiAssistDialog::retranslateUi()
     m_buttons->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
 }
 
-QString AiAssistDialog::promptText() const
-{
+QString AiAssistDialog::promptText() const {
     return m_promptEdit->toPlainText();
 }
 
-void AiAssistDialog::refreshPlanView()
-{
+void AiAssistDialog::refreshPlanView() {
     m_planList->clear();
     for (const auto& step : m_plan.steps) {
         QString line = tr("%1. %2 — %3")
@@ -95,8 +91,7 @@ void AiAssistDialog::refreshPlanView()
     m_buttons->button(QDialogButtonBox::Ok)->setEnabled(m_planReady);
 }
 
-void AiAssistDialog::generatePlan()
-{
+void AiAssistDialog::generatePlan() {
     m_planReady = false;
     m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
@@ -114,8 +109,7 @@ void AiAssistDialog::generatePlan()
         for (const auto& issue : validation.issues) {
             details += QString::fromStdString(issue.message) + QLatin1Char('\n');
         }
-        QMessageBox::warning(this, tr("AI Assist"),
-                             tr("Plan failed validation:\n%1").arg(details));
+        QMessageBox::warning(this, tr("AI Assist"), tr("Plan failed validation:\n%1").arg(details));
         m_plan = {};
         refreshPlanView();
         return;

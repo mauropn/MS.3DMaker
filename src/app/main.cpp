@@ -9,16 +9,15 @@
 
 namespace {
 
-QString resolveTranslationsDir(const QString& appDir)
-{
+QString resolveTranslationsDir(const QString& appDir) {
     const QStringList candidates = {
         QDir(appDir).filePath(QStringLiteral("translations")),
         QDir(appDir).filePath(QStringLiteral("../translations")),
         QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("translations")),
     };
     for (const QString& candidate : candidates) {
-        if (QFileInfo::exists(QDir(candidate).filePath(QStringLiteral("MS3DMaker_en.qm")))
-            || QFileInfo::exists(QDir(candidate).filePath(QStringLiteral("MS3DMaker_pt_BR.qm")))) {
+        if (QFileInfo::exists(QDir(candidate).filePath(QStringLiteral("MS3DMaker_en.qm"))) ||
+            QFileInfo::exists(QDir(candidate).filePath(QStringLiteral("MS3DMaker_pt_BR.qm")))) {
             return QDir(candidate).absolutePath();
         }
     }
@@ -28,8 +27,7 @@ QString resolveTranslationsDir(const QString& appDir)
 
 } // namespace
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     QApplication::setOrganizationName(QStringLiteral("MauroSistemas"));
     QApplication::setApplicationName(QStringLiteral("MS3DMaker"));

@@ -2,8 +2,8 @@
 #include "geometry/SolidFactory.h"
 
 #include <QtTest/QtTest>
-#include <TopExp_Explorer.hxx>
 #include <TopAbs_ShapeEnum.hxx>
+#include <TopExp_Explorer.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 
@@ -15,8 +15,7 @@ private slots:
     void rejectNullShape();
 };
 
-void TestAssembly::addTwoTranslatedBoxesBuildsCompound()
-{
+void TestAssembly::addTwoTranslatedBoxesBuildsCompound() {
     const auto box = ms3d::geometry::makeBox(20, 20, 20);
     QVERIFY2(box.ok, box.error.c_str());
 
@@ -39,15 +38,13 @@ void TestAssembly::addTwoTranslatedBoxesBuildsCompound()
     QCOMPARE(solids, 2);
 }
 
-void TestAssembly::emptyAssemblyFailsBuild()
-{
+void TestAssembly::emptyAssemblyFailsBuild() {
     ms3d::assembly::Assembly assembly;
     const auto built = assembly.buildCompound();
     QVERIFY(!built.ok);
 }
 
-void TestAssembly::rejectNullShape()
-{
+void TestAssembly::rejectNullShape() {
     ms3d::assembly::Assembly assembly;
     TopoDS_Shape nullShape;
     gp_Trsf identity;

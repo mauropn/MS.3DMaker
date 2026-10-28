@@ -15,8 +15,7 @@ private slots:
     void validatorCatchesBadBooleanOrder();
 };
 
-void TestAi::planEnclosureExample()
-{
+void TestAi::planEnclosureExample() {
     const auto planned = ms3d::ai::planFromPrompt(
         "Create an aluminum enclosure measuring 100 x 60 x 30 mm, with 3 mm walls and four "
         "mounting holes.");
@@ -26,22 +25,19 @@ void TestAi::planEnclosureExample()
     QVERIFY(validation.ok);
 }
 
-void TestAi::planSimpleBox()
-{
+void TestAi::planSimpleBox() {
     const auto planned = ms3d::ai::planFromPrompt("box 80 x 40 x 20");
     QVERIFY(planned.ok);
     QCOMPARE(planned.plan.steps.size(), size_t(1));
     QCOMPARE(planned.plan.steps.front().op, ms3d::ai::AiOpKind::MakeBox);
 }
 
-void TestAi::rejectEmptyPrompt()
-{
+void TestAi::rejectEmptyPrompt() {
     const auto planned = ms3d::ai::planFromPrompt("   ");
     QVERIFY(!planned.ok);
 }
 
-void TestAi::validateAndExecuteEnclosure()
-{
+void TestAi::validateAndExecuteEnclosure() {
     const auto planned = ms3d::ai::planFromPrompt(
         "enclosure 100 x 60 x 30 mm with 3 mm walls and four mounting holes");
     QVERIFY(planned.ok);
@@ -56,8 +52,7 @@ void TestAi::validateAndExecuteEnclosure()
     QVERIFY(tip->valid);
 }
 
-void TestAi::validatorCatchesBadBooleanOrder()
-{
+void TestAi::validatorCatchesBadBooleanOrder() {
     ms3d::ai::AiPlan plan;
     ms3d::ai::AiStep cut;
     cut.id = 1;

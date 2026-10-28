@@ -13,8 +13,7 @@ private slots:
     void noCycleOnSimpleGraph();
 };
 
-void TestFeatureHistory::addAndRecomputeBox()
-{
+void TestFeatureHistory::addAndRecomputeBox() {
     ms3d::features::FeatureHistory history;
     const int id = history.addPrimitive(ms3d::features::FeatureKind::Box,
                                         {{"dx", 10}, {"dy", 20}, {"dz", 30}}, "Box");
@@ -27,8 +26,7 @@ void TestFeatureHistory::addAndRecomputeBox()
     QVERIFY(!f->dirty);
 }
 
-void TestFeatureHistory::editParameterInvalidatesAndRecomputes()
-{
+void TestFeatureHistory::editParameterInvalidatesAndRecomputes() {
     ms3d::features::FeatureHistory history;
     const int id = history.addPrimitive(ms3d::features::FeatureKind::Box,
                                         {{"dx", 10}, {"dy", 10}, {"dz", 10}}, "Box");
@@ -50,8 +48,7 @@ void TestFeatureHistory::editParameterInvalidatesAndRecomputes()
     QCOMPARE(dx, 50.0);
 }
 
-void TestFeatureHistory::booleanDependsOnBoxes()
-{
+void TestFeatureHistory::booleanDependsOnBoxes() {
     ms3d::features::FeatureHistory history;
     const int a = history.addPrimitive(ms3d::features::FeatureKind::Box,
                                        {{"dx", 80}, {"dy", 50}, {"dz", 40}}, "Box");
@@ -67,8 +64,7 @@ void TestFeatureHistory::booleanDependsOnBoxes()
     QVERIFY(tip->valid);
 }
 
-void TestFeatureHistory::failedUpstreamMarksDependent()
-{
+void TestFeatureHistory::failedUpstreamMarksDependent() {
     ms3d::features::FeatureHistory history;
     const int a = history.addPrimitive(ms3d::features::FeatureKind::Box,
                                        {{"dx", -1}, {"dy", 10}, {"dz", 10}}, "Box");
@@ -85,8 +81,7 @@ void TestFeatureHistory::failedUpstreamMarksDependent()
     QVERIFY(!fcut->valid);
 }
 
-void TestFeatureHistory::dependentsCollected()
-{
+void TestFeatureHistory::dependentsCollected() {
     ms3d::features::FeatureHistory history;
     const int a = history.addPrimitive(ms3d::features::FeatureKind::Box,
                                        {{"dx", 10}, {"dy", 10}, {"dz", 10}}, "Box");
@@ -98,8 +93,7 @@ void TestFeatureHistory::dependentsCollected()
     QCOMPARE(deps[0], u);
 }
 
-void TestFeatureHistory::noCycleOnSimpleGraph()
-{
+void TestFeatureHistory::noCycleOnSimpleGraph() {
     ms3d::features::FeatureHistory history;
     const int a = history.addPrimitive(ms3d::features::FeatureKind::Cylinder,
                                        {{"radius", 5}, {"height", 10}}, "Cyl");

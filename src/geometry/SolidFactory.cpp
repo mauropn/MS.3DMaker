@@ -26,8 +26,7 @@
 namespace ms3d::geometry {
 namespace {
 
-SolidResult finalizeFromMakerSolid(const TopoDS_Solid& solid, const char* nullMessage)
-{
+SolidResult finalizeFromMakerSolid(const TopoDS_Solid& solid, const char* nullMessage) {
     SolidResult result;
     if (solid.IsNull()) {
         result.error = nullMessage ? nullMessage : "Null solid";
@@ -42,8 +41,7 @@ SolidResult finalizeFromMakerSolid(const TopoDS_Solid& solid, const char* nullMe
     return result;
 }
 
-SolidResult runBoolean(BRepAlgoAPI_BooleanOperation& op, const char* failMessage)
-{
+SolidResult runBoolean(BRepAlgoAPI_BooleanOperation& op, const char* failMessage) {
     SolidResult result;
     try {
         op.Build();
@@ -85,8 +83,7 @@ SolidResult runBoolean(BRepAlgoAPI_BooleanOperation& op, const char* failMessage
     }
 }
 
-TopoDS_Face makeRectangleFaceXY(double width, double depth)
-{
+TopoDS_Face makeRectangleFaceXY(double width, double depth) {
     const gp_Pnt p0(0.0, 0.0, 0.0);
     const gp_Pnt p1(width, 0.0, 0.0);
     const gp_Pnt p2(width, depth, 0.0);
@@ -100,8 +97,7 @@ TopoDS_Face makeRectangleFaceXY(double width, double depth)
     return BRepBuilderAPI_MakeFace(wire.Wire()).Face();
 }
 
-TopoDS_Face makeRectangleFaceXZ(double x0, double x1, double z0, double z1)
-{
+TopoDS_Face makeRectangleFaceXZ(double x0, double x1, double z0, double z1) {
     const gp_Pnt p0(x0, 0.0, z0);
     const gp_Pnt p1(x1, 0.0, z0);
     const gp_Pnt p2(x1, 0.0, z1);
@@ -117,8 +113,7 @@ TopoDS_Face makeRectangleFaceXZ(double x0, double x1, double z0, double z1)
 
 } // namespace
 
-bool isValidSolid(const TopoDS_Shape& shape)
-{
+bool isValidSolid(const TopoDS_Shape& shape) {
     if (shape.IsNull()) {
         return false;
     }
@@ -126,8 +121,7 @@ bool isValidSolid(const TopoDS_Shape& shape)
     return analyzer.IsValid();
 }
 
-SolidResult makeBox(double dx, double dy, double dz)
-{
+SolidResult makeBox(double dx, double dy, double dz) {
     SolidResult result;
     if (dx <= 0.0 || dy <= 0.0 || dz <= 0.0) {
         result.error = "Box dimensions must be positive";
@@ -147,8 +141,7 @@ SolidResult makeBox(double dx, double dy, double dz)
     }
 }
 
-SolidResult makeCylinder(double radius, double height)
-{
+SolidResult makeCylinder(double radius, double height) {
     SolidResult result;
     if (radius <= 0.0 || height <= 0.0) {
         result.error = "Cylinder radius and height must be positive";
@@ -169,8 +162,7 @@ SolidResult makeCylinder(double radius, double height)
     }
 }
 
-SolidResult makeSphere(double radius)
-{
+SolidResult makeSphere(double radius) {
     SolidResult result;
     if (radius <= 0.0) {
         result.error = "Sphere radius must be positive";
@@ -180,7 +172,8 @@ SolidResult makeSphere(double radius)
     try {
         BRepPrimAPI_MakeSphere maker(radius);
         maker.Build();
-        return finalizeFromMakerSolid(maker.Solid(), "BRepPrimAPI_MakeSphere produced a null solid");
+        return finalizeFromMakerSolid(maker.Solid(),
+                                      "BRepPrimAPI_MakeSphere produced a null solid");
     } catch (const Standard_Failure& ex) {
         result.error = ex.GetMessageString() ? ex.GetMessageString() : "OCCT Standard_Failure";
         return result;
@@ -190,8 +183,7 @@ SolidResult makeSphere(double radius)
     }
 }
 
-SolidResult makeExtrusion(double width, double depth, double height)
-{
+SolidResult makeExtrusion(double width, double depth, double height) {
     SolidResult result;
     if (width <= 0.0 || depth <= 0.0 || height <= 0.0) {
         result.error = "Extrusion dimensions must be positive";
@@ -231,8 +223,7 @@ SolidResult makeExtrusion(double width, double depth, double height)
     }
 }
 
-SolidResult makeRevolution(double innerRadius, double outerRadius, double height)
-{
+SolidResult makeRevolution(double innerRadius, double outerRadius, double height) {
     SolidResult result;
     if (innerRadius < 0.0 || outerRadius <= 0.0 || height <= 0.0) {
         result.error = "Revolution radii and height must be valid (outer > 0, height > 0)";
@@ -258,8 +249,7 @@ SolidResult makeRevolution(double innerRadius, double outerRadius, double height
         }
         const TopoDS_Shape& shape = revol.Shape();
         if (shape.ShapeType() == TopAbs_SOLID) {
-            return finalizeFromMakerSolid(TopoDS::Solid(shape),
-                                          "Revolution produced a null solid");
+            return finalizeFromMakerSolid(TopoDS::Solid(shape), "Revolution produced a null solid");
         }
         TopExp_Explorer exp(shape, TopAbs_SOLID);
         if (!exp.More()) {
@@ -277,8 +267,7 @@ SolidResult makeRevolution(double innerRadius, double outerRadius, double height
     }
 }
 
-SolidResult booleanUnion(const TopoDS_Shape& a, const TopoDS_Shape& b)
-{
+SolidResult booleanUnion(const TopoDS_Shape& a, const TopoDS_Shape& b) {
     SolidResult result;
     if (a.IsNull() || b.IsNull()) {
         result.error = "Boolean union requires two non-null shapes";
@@ -288,8 +277,7 @@ SolidResult booleanUnion(const TopoDS_Shape& a, const TopoDS_Shape& b)
     return runBoolean(fuse, "Boolean union failed");
 }
 
-SolidResult booleanCut(const TopoDS_Shape& a, const TopoDS_Shape& b)
-{
+SolidResult booleanCut(const TopoDS_Shape& a, const TopoDS_Shape& b) {
     SolidResult result;
     if (a.IsNull() || b.IsNull()) {
         result.error = "Boolean cut requires two non-null shapes";
@@ -299,8 +287,7 @@ SolidResult booleanCut(const TopoDS_Shape& a, const TopoDS_Shape& b)
     return runBoolean(cut, "Boolean cut failed");
 }
 
-SolidResult booleanCommon(const TopoDS_Shape& a, const TopoDS_Shape& b)
-{
+SolidResult booleanCommon(const TopoDS_Shape& a, const TopoDS_Shape& b) {
     SolidResult result;
     if (a.IsNull() || b.IsNull()) {
         result.error = "Boolean common requires two non-null shapes";

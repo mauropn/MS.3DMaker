@@ -22,7 +22,8 @@ public:
     std::optional<Feature> find(int id) const;
     Feature* findMutable(int id);
 
-    bool setParameter(int id, const std::string& key, double value, std::string* errorOut = nullptr);
+    bool setParameter(int id, const std::string& key, double value,
+                      std::string* errorOut = nullptr);
     bool setParameters(int id, const std::vector<FeatureParam>& params,
                        std::string* errorOut = nullptr);
 

@@ -27,17 +27,14 @@
 
 namespace ms3d::ui {
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent)
-{
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     buildUi();
     retranslateUi();
     bindDocumentToView();
     updateWindowTitle();
 }
 
-void MainWindow::buildUi()
-{
+void MainWindow::buildUi() {
     auto* central = new QWidget(this);
     auto* layout = new QVBoxLayout(central);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -131,7 +128,8 @@ void MainWindow::buildUi()
     m_createMenu->addSeparator();
 
     m_createBoolUnionAction = new QAction(this);
-    connect(m_createBoolUnionAction, &QAction::triggered, this, &MainWindow::createDemoBooleanUnion);
+    connect(m_createBoolUnionAction, &QAction::triggered, this,
+            &MainWindow::createDemoBooleanUnion);
     m_createMenu->addAction(m_createBoolUnionAction);
 
     m_createBoolCutAction = new QAction(this);
@@ -196,7 +194,8 @@ void MainWindow::buildUi()
     m_assemblyMenu->addAction(m_assemblyAddAction);
 
     m_assemblyAddOffsetAction = new QAction(this);
-    connect(m_assemblyAddOffsetAction, &QAction::triggered, this, &MainWindow::assemblyAddOffsetDemo);
+    connect(m_assemblyAddOffsetAction, &QAction::triggered, this,
+            &MainWindow::assemblyAddOffsetDemo);
     m_assemblyMenu->addAction(m_assemblyAddOffsetAction);
 
     m_assemblyShowAction = new QAction(this);
@@ -249,8 +248,7 @@ void MainWindow::buildUi()
     m_helpMenu->addAction(m_aboutAction);
 }
 
-void MainWindow::retranslateUi()
-{
+void MainWindow::retranslateUi() {
     m_fileMenu->setTitle(tr("File"));
     m_createMenu->setTitle(tr("Create"));
     m_sketchMenu->setTitle(tr("Sketch"));
@@ -309,8 +307,7 @@ void MainWindow::retranslateUi()
     updateWindowTitle();
 }
 
-void MainWindow::updateWindowTitle()
-{
+void MainWindow::updateWindowTitle() {
     QString title = m_document.title();
     if (m_document.isDirty()) {
         title += QLatin1Char('*');
@@ -318,8 +315,7 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(tr("%1 — MS3DMaker").arg(title));
 }
 
-void MainWindow::bindDocumentToView()
-{
+void MainWindow::bindDocumentToView() {
     if (!m_view) {
         return;
     }
@@ -327,16 +323,14 @@ void MainWindow::bindDocumentToView()
     m_view->refreshSketchDisplay();
 }
 
-void MainWindow::changeEvent(QEvent* event)
-{
+void MainWindow::changeEvent(QEvent* event) {
     if (event->type() == QEvent::LanguageChange) {
         retranslateUi();
     }
     QMainWindow::changeEvent(event);
 }
 
-void MainWindow::showEvent(QShowEvent* event)
-{
+void MainWindow::showEvent(QShowEvent* event) {
     QMainWindow::showEvent(event);
     if (!m_demoBoxLoaded) {
         createDemoBox();
@@ -344,8 +338,7 @@ void MainWindow::showEvent(QShowEvent* event)
     }
 }
 
-void MainWindow::closeEvent(QCloseEvent* event)
-{
+void MainWindow::closeEvent(QCloseEvent* event) {
     if (maybeSave()) {
         event->accept();
     } else {
@@ -353,8 +346,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
     }
 }
 
-bool MainWindow::maybeSave()
-{
+bool MainWindow::maybeSave() {
     if (!m_document.isDirty()) {
         return true;
     }
@@ -372,8 +364,7 @@ bool MainWindow::maybeSave()
     return !m_document.isDirty();
 }
 
-void MainWindow::fileNew()
-{
+void MainWindow::fileNew() {
     if (!maybeSave()) {
         return;
     }
@@ -389,24 +380,23 @@ void MainWindow::fileNew()
     statusBar()->showMessage(tr("New document"), 3000);
 }
 
-void MainWindow::fileOpen()
-{
+void MainWindow::fileOpen() {
     if (!maybeSave()) {
         return;
     }
-    const QString path = QFileDialog::getOpenFileName(
-        this, tr("Open Document"), QString(),
-        tr("MS3DMaker documents (*.%1);;All files (*.*)")
-            .arg(QString::fromUtf8(ms3d::document::kFileExtension)));
+    const QString path =
+        QFileDialog::getOpenFileName(this, tr("Open Document"), QString(),
+                                     tr("MS3DMaker documents (*.%1);;All files (*.*)")
+                                         .arg(QString::fromUtf8(ms3d::document::kFileExtension)));
     if (path.isEmpty()) {
         return;
     }
     const auto loaded = m_document.loadFromFile(path);
     if (loaded.status != ms3d::document::LoadStatus::Ok) {
-        QMessageBox::critical(this, tr("Open failed"),
-                              tr("%1\n%2")
-                                  .arg(ms3d::document::Document::statusMessage(loaded.status),
-                                       loaded.message));
+        QMessageBox::critical(
+            this, tr("Open failed"),
+            tr("%1\n%2").arg(ms3d::document::Document::statusMessage(loaded.status),
+                             loaded.message));
         return;
     }
     m_selectedEntityId = -1;
@@ -415,8 +405,7 @@ void MainWindow::fileOpen()
     updateWindowTitle();
 }
 
-void MainWindow::fileSave()
-{
+void MainWindow::fileSave() {
     if (m_document.filePath().isEmpty()) {
         fileSaveAs();
         return;
@@ -430,12 +419,10 @@ void MainWindow::fileSave()
     statusBar()->showMessage(tr("Saved %1").arg(m_document.filePath()), 4000);
 }
 
-void MainWindow::fileSaveAs()
-{
+void MainWindow::fileSaveAs() {
     const QString path = QFileDialog::getSaveFileName(
         this, tr("Save Document As"), m_document.title() + QStringLiteral(".ms3d"),
-        tr("MS3DMaker documents (*.%1)")
-            .arg(QString::fromUtf8(ms3d::document::kFileExtension)));
+        tr("MS3DMaker documents (*.%1)").arg(QString::fromUtf8(ms3d::document::kFileExtension)));
     if (path.isEmpty()) {
         return;
     }
@@ -453,8 +440,7 @@ void MainWindow::fileSaveAs()
     statusBar()->showMessage(tr("Saved %1").arg(m_document.filePath()), 4000);
 }
 
-TopoDS_Shape MainWindow::currentSolidSource() const
-{
+TopoDS_Shape MainWindow::currentSolidSource() const {
     const auto tip = m_document.history().tip();
     if (tip && tip->valid && !tip->result.IsNull()) {
         return tip->result;
@@ -462,8 +448,7 @@ TopoDS_Shape MainWindow::currentSolidSource() const
     return m_importedShape;
 }
 
-TopoDS_Shape MainWindow::shapeForStepExport() const
-{
+TopoDS_Shape MainWindow::shapeForStepExport() const {
     const auto built = m_assembly.buildCompound();
     if (built.ok && !built.compound.IsNull()) {
         return built.compound;
@@ -471,8 +456,7 @@ TopoDS_Shape MainWindow::shapeForStepExport() const
     return currentSolidSource();
 }
 
-void MainWindow::assemblyAddCurrent()
-{
+void MainWindow::assemblyAddCurrent() {
     const TopoDS_Shape shape = currentSolidSource();
     if (shape.IsNull()) {
         QMessageBox::warning(this, tr("Assembly"),
@@ -482,14 +466,11 @@ void MainWindow::assemblyAddCurrent()
     gp_Trsf identity;
     const int id = m_assembly.addInstance(shape, identity, "Component");
     statusBar()->showMessage(
-        tr("Assembly: added component id %1 (total %2)")
-            .arg(id)
-            .arg(m_assembly.instances().size()),
+        tr("Assembly: added component id %1 (total %2)").arg(id).arg(m_assembly.instances().size()),
         4000);
 }
 
-void MainWindow::assemblyAddOffsetDemo()
-{
+void MainWindow::assemblyAddOffsetDemo() {
     const TopoDS_Shape shape = currentSolidSource();
     if (shape.IsNull()) {
         QMessageBox::warning(this, tr("Assembly"),
@@ -499,15 +480,13 @@ void MainWindow::assemblyAddOffsetDemo()
     gp_Trsf trsf;
     trsf.SetTranslation(gp_Vec(120.0, 0.0, 0.0));
     const int id = m_assembly.addInstance(shape, trsf, "Offset");
-    statusBar()->showMessage(
-        tr("Assembly: added offset component id %1 (total %2)")
-            .arg(id)
-            .arg(m_assembly.instances().size()),
-        4000);
+    statusBar()->showMessage(tr("Assembly: added offset component id %1 (total %2)")
+                                 .arg(id)
+                                 .arg(m_assembly.instances().size()),
+                             4000);
 }
 
-void MainWindow::assemblyShow()
-{
+void MainWindow::assemblyShow() {
     const auto built = m_assembly.buildCompound();
     if (!built.ok) {
         QMessageBox::warning(this, tr("Assembly"), QString::fromStdString(built.error));
@@ -522,18 +501,15 @@ void MainWindow::assemblyShow()
         QMessageBox::critical(this, tr("Assembly"), error);
         return;
     }
-    statusBar()->showMessage(
-        tr("Showing assembly (%1 components)").arg(built.instanceCount), 4000);
+    statusBar()->showMessage(tr("Showing assembly (%1 components)").arg(built.instanceCount), 4000);
 }
 
-void MainWindow::assemblyClear()
-{
+void MainWindow::assemblyClear() {
     m_assembly.clear();
     statusBar()->showMessage(tr("Assembly cleared"), 3000);
 }
 
-void MainWindow::showDrawingView(ms3d::drawing::ViewOrientation orientation)
-{
+void MainWindow::showDrawingView(ms3d::drawing::ViewOrientation orientation) {
     const TopoDS_Shape shape = currentSolidSource();
     if (shape.IsNull()) {
         QMessageBox::warning(this, tr("Drawing"),
@@ -560,38 +536,33 @@ void MainWindow::showDrawingView(ms3d::drawing::ViewOrientation orientation)
         4000);
 }
 
-void MainWindow::drawingFront()
-{
+void MainWindow::drawingFront() {
     showDrawingView(ms3d::drawing::ViewOrientation::Front);
 }
 
-void MainWindow::drawingTop()
-{
+void MainWindow::drawingTop() {
     showDrawingView(ms3d::drawing::ViewOrientation::Top);
 }
 
-void MainWindow::drawingRight()
-{
+void MainWindow::drawingRight() {
     showDrawingView(ms3d::drawing::ViewOrientation::Right);
 }
 
-void MainWindow::drawingIso()
-{
+void MainWindow::drawingIso() {
     showDrawingView(ms3d::drawing::ViewOrientation::Iso);
 }
 
-void MainWindow::openAiAssist()
-{
+void MainWindow::openAiAssist() {
     AiAssistDialog dialog(this);
     if (dialog.exec() != QDialog::Accepted || !dialog.hasValidPlan()) {
         return;
     }
 
-    const auto confirm = QMessageBox::question(
-        this, tr("Confirm AI plan"),
-        tr("Execute %1 validated modeling step(s) through Feature History?")
-            .arg(dialog.plan().steps.size()),
-        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    const auto confirm =
+        QMessageBox::question(this, tr("Confirm AI plan"),
+                              tr("Execute %1 validated modeling step(s) through Feature History?")
+                                  .arg(dialog.plan().steps.size()),
+                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (confirm != QMessageBox::Yes) {
         return;
     }
@@ -609,11 +580,9 @@ void MainWindow::openAiAssist()
     recomputeAndShow(tr("AI plan executed (%1 features)").arg(executed.createdFeatureIds.size()));
 }
 
-void MainWindow::fileImportStep()
-{
+void MainWindow::fileImportStep() {
     const QString path = QFileDialog::getOpenFileName(
-        this, tr("Import STEP"), QString(),
-        tr("STEP files (*.step *.stp);;All files (*.*)"));
+        this, tr("Import STEP"), QString(), tr("STEP files (*.step *.stp);;All files (*.*)"));
     if (path.isEmpty() || !m_view) {
         return;
     }
@@ -633,30 +602,27 @@ void MainWindow::fileImportStep()
         return;
     }
     statusBar()->showMessage(
-        tr("Imported STEP (%1 root(s)): %2")
-            .arg(imported.transferredRoots)
-            .arg(path),
-        5000);
+        tr("Imported STEP (%1 root(s)): %2").arg(imported.transferredRoots).arg(path), 5000);
 }
 
-void MainWindow::fileExportStep()
-{
+void MainWindow::fileExportStep() {
     const TopoDS_Shape shape = shapeForStepExport();
     if (shape.IsNull()) {
-        QMessageBox::warning(this, tr("STEP export"),
-                             tr("Nothing to export. Create a feature or import a STEP file first."));
+        QMessageBox::warning(
+            this, tr("STEP export"),
+            tr("Nothing to export. Create a feature or import a STEP file first."));
         return;
     }
 
-    const QString path = QFileDialog::getSaveFileName(
-        this, tr("Export STEP"), m_document.title() + QStringLiteral(".step"),
-        tr("STEP files (*.step *.stp)"));
+    const QString path = QFileDialog::getSaveFileName(this, tr("Export STEP"),
+                                                      m_document.title() + QStringLiteral(".step"),
+                                                      tr("STEP files (*.step *.stp)"));
     if (path.isEmpty()) {
         return;
     }
     QString finalPath = path;
-    if (!finalPath.endsWith(QStringLiteral(".step"), Qt::CaseInsensitive)
-        && !finalPath.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
+    if (!finalPath.endsWith(QStringLiteral(".step"), Qt::CaseInsensitive) &&
+        !finalPath.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
         finalPath += QStringLiteral(".step");
     }
 
@@ -670,26 +636,24 @@ void MainWindow::fileExportStep()
     statusBar()->showMessage(tr("Exported STEP (AP214): %1").arg(finalPath), 5000);
 }
 
-void MainWindow::openPreferences()
-{
+void MainWindow::openPreferences() {
     PreferencesDialog dialog(this);
     dialog.exec();
 }
 
-void MainWindow::showAbout()
-{
+void MainWindow::showAbout() {
     QMessageBox::about(
         this, tr("About MS3DMaker"),
         tr("MS3DMaker is an independent open-source parametric 3D CAD application."));
 }
 
-void MainWindow::refreshFeatureList()
-{
+void MainWindow::refreshFeatureList() {
     if (!m_featureList) {
         return;
     }
-    const int previousId =
-        m_featureList->currentItem() ? m_featureList->currentItem()->data(Qt::UserRole).toInt() : -1;
+    const int previousId = m_featureList->currentItem()
+                               ? m_featureList->currentItem()->data(Qt::UserRole).toInt()
+                               : -1;
     m_featureList->clear();
     for (const auto& f : m_document.history().features()) {
         QString status;
@@ -700,8 +664,8 @@ void MainWindow::refreshFeatureList()
         } else {
             status = tr("Error");
         }
-        auto* item = new QListWidgetItem(
-            tr("%1 [%2]").arg(QString::fromStdString(f.name), status), m_featureList);
+        auto* item = new QListWidgetItem(tr("%1 [%2]").arg(QString::fromStdString(f.name), status),
+                                         m_featureList);
         item->setData(Qt::UserRole, f.id);
         if (!f.error.empty()) {
             item->setToolTip(QString::fromStdString(f.error));
@@ -712,8 +676,7 @@ void MainWindow::refreshFeatureList()
     }
 }
 
-bool MainWindow::recomputeAndShow(const QString& successMessage)
-{
+bool MainWindow::recomputeAndShow(const QString& successMessage) {
     if (!m_view) {
         return false;
     }
@@ -746,46 +709,40 @@ bool MainWindow::recomputeAndShow(const QString& successMessage)
 }
 
 int MainWindow::appendPrimitive(ms3d::features::FeatureKind kind,
-                                const std::vector<ms3d::features::FeatureParam>& params)
-{
+                                const std::vector<ms3d::features::FeatureParam>& params) {
     return m_document.history().addPrimitive(kind, params, ms3d::features::featureKindName(kind));
 }
 
-int MainWindow::appendBooleanDemo(ms3d::features::FeatureKind kind)
-{
-    const int a = m_document.history().addPrimitive(
-        ms3d::features::FeatureKind::Box, {{"dx", 80}, {"dy", 50}, {"dz", 40}}, "Box");
-    const int b = m_document.history().addPrimitive(
-        ms3d::features::FeatureKind::Box, {{"dx", 60}, {"dy", 40}, {"dz", 50}}, "Box");
+int MainWindow::appendBooleanDemo(ms3d::features::FeatureKind kind) {
+    const int a = m_document.history().addPrimitive(ms3d::features::FeatureKind::Box,
+                                                    {{"dx", 80}, {"dy", 50}, {"dz", 40}}, "Box");
+    const int b = m_document.history().addPrimitive(ms3d::features::FeatureKind::Box,
+                                                    {{"dx", 60}, {"dy", 40}, {"dz", 50}}, "Box");
     return m_document.history().addBoolean(kind, a, b, ms3d::features::featureKindName(kind));
 }
 
-void MainWindow::createDemoBox()
-{
+void MainWindow::createDemoBox() {
     appendPrimitive(ms3d::features::FeatureKind::Box, {{"dx", 100}, {"dy", 60}, {"dz", 30}});
     recomputeAndShow(tr("Displayed box feature 100 × 60 × 30 mm"));
     m_document.markDirty();
     updateWindowTitle();
 }
 
-void MainWindow::createDemoCylinder()
-{
+void MainWindow::createDemoCylinder() {
     appendPrimitive(ms3d::features::FeatureKind::Cylinder, {{"radius", 25}, {"height", 60}});
     recomputeAndShow(tr("Displayed cylinder feature r=25 h=60 mm"));
     m_document.markDirty();
     updateWindowTitle();
 }
 
-void MainWindow::createDemoSphere()
-{
+void MainWindow::createDemoSphere() {
     appendPrimitive(ms3d::features::FeatureKind::Sphere, {{"radius", 40}});
     recomputeAndShow(tr("Displayed sphere feature r=40 mm"));
     m_document.markDirty();
     updateWindowTitle();
 }
 
-void MainWindow::createDemoExtrusion()
-{
+void MainWindow::createDemoExtrusion() {
     appendPrimitive(ms3d::features::FeatureKind::Extrusion,
                     {{"width", 80}, {"depth", 50}, {"height", 20}});
     recomputeAndShow(tr("Displayed extrusion feature 80 × 50 × 20 mm"));
@@ -793,8 +750,7 @@ void MainWindow::createDemoExtrusion()
     updateWindowTitle();
 }
 
-void MainWindow::createDemoRevolution()
-{
+void MainWindow::createDemoRevolution() {
     appendPrimitive(ms3d::features::FeatureKind::Revolution,
                     {{"innerRadius", 15}, {"outerRadius", 30}, {"height", 50}});
     recomputeAndShow(tr("Displayed revolution feature (r_in=15 r_out=30 h=50 mm)"));
@@ -802,39 +758,34 @@ void MainWindow::createDemoRevolution()
     updateWindowTitle();
 }
 
-void MainWindow::createDemoBooleanUnion()
-{
+void MainWindow::createDemoBooleanUnion() {
     appendBooleanDemo(ms3d::features::FeatureKind::BooleanUnion);
     recomputeAndShow(tr("Displayed boolean union feature"));
     m_document.markDirty();
     updateWindowTitle();
 }
 
-void MainWindow::createDemoBooleanCut()
-{
+void MainWindow::createDemoBooleanCut() {
     appendBooleanDemo(ms3d::features::FeatureKind::BooleanCut);
     recomputeAndShow(tr("Displayed boolean subtract feature"));
     m_document.markDirty();
     updateWindowTitle();
 }
 
-void MainWindow::createDemoBooleanCommon()
-{
+void MainWindow::createDemoBooleanCommon() {
     appendBooleanDemo(ms3d::features::FeatureKind::BooleanCommon);
     recomputeAndShow(tr("Displayed boolean intersect feature"));
     m_document.markDirty();
     updateWindowTitle();
 }
 
-void MainWindow::fitAllView()
-{
+void MainWindow::fitAllView() {
     if (m_view) {
         m_view->fitAll();
     }
 }
 
-void MainWindow::enterSketchTool(ms3d::viewport::SketchTool tool)
-{
+void MainWindow::enterSketchTool(ms3d::viewport::SketchTool tool) {
     if (!m_view) {
         return;
     }
@@ -844,32 +795,27 @@ void MainWindow::enterSketchTool(ms3d::viewport::SketchTool tool)
     m_view->fitAll();
 }
 
-void MainWindow::startSketchSelect()
-{
+void MainWindow::startSketchSelect() {
     enterSketchTool(ms3d::viewport::SketchTool::Select);
     statusBar()->showMessage(tr("Sketch select: click an entity"), 4000);
 }
 
-void MainWindow::startSketchLine()
-{
+void MainWindow::startSketchLine() {
     enterSketchTool(ms3d::viewport::SketchTool::Line);
     statusBar()->showMessage(tr("Sketch line: click two points on the plane"), 5000);
 }
 
-void MainWindow::startSketchCircle()
-{
+void MainWindow::startSketchCircle() {
     enterSketchTool(ms3d::viewport::SketchTool::Circle);
     statusBar()->showMessage(tr("Sketch circle: center, then radius point"), 5000);
 }
 
-void MainWindow::startSketchRectangle()
-{
+void MainWindow::startSketchRectangle() {
     enterSketchTool(ms3d::viewport::SketchTool::Rectangle);
     statusBar()->showMessage(tr("Sketch rectangle: corner, then opposite corner"), 5000);
 }
 
-void MainWindow::setSketchPlane(ms3d::sketch::PlaneId plane)
-{
+void MainWindow::setSketchPlane(ms3d::sketch::PlaneId plane) {
     if (!m_view) {
         return;
     }
@@ -880,23 +826,19 @@ void MainWindow::setSketchPlane(ms3d::sketch::PlaneId plane)
         tr("Sketch plane: %1").arg(QString::fromUtf8(ms3d::sketch::planeIdName(plane))), 4000);
 }
 
-void MainWindow::setPlaneXY()
-{
+void MainWindow::setPlaneXY() {
     setSketchPlane(ms3d::sketch::PlaneId::XY);
 }
 
-void MainWindow::setPlaneXZ()
-{
+void MainWindow::setPlaneXZ() {
     setSketchPlane(ms3d::sketch::PlaneId::XZ);
 }
 
-void MainWindow::setPlaneYZ()
-{
+void MainWindow::setPlaneYZ() {
     setSketchPlane(ms3d::sketch::PlaneId::YZ);
 }
 
-void MainWindow::applyHorizontalConstraint()
-{
+void MainWindow::applyHorizontalConstraint() {
     auto& sketch = m_document.sketch();
     if (m_selectedEntityId < 0) {
         statusBar()->showMessage(tr("Select a line first"), 4000);
@@ -915,8 +857,7 @@ void MainWindow::applyHorizontalConstraint()
     statusBar()->showMessage(tr("Applied horizontal constraint"), 4000);
 }
 
-void MainWindow::applyVerticalConstraint()
-{
+void MainWindow::applyVerticalConstraint() {
     auto& sketch = m_document.sketch();
     if (m_selectedEntityId < 0) {
         statusBar()->showMessage(tr("Select a line first"), 4000);
@@ -935,8 +876,7 @@ void MainWindow::applyVerticalConstraint()
     statusBar()->showMessage(tr("Applied vertical constraint"), 4000);
 }
 
-void MainWindow::validateSketch()
-{
+void MainWindow::validateSketch() {
     auto& sketch = m_document.sketch();
     sketch.applyConstraints();
     const auto result = sketch.validate();
@@ -958,8 +898,7 @@ void MainWindow::validateSketch()
     statusBar()->showMessage(tr("Sketch validation failed"), 5000);
 }
 
-void MainWindow::clearSketch()
-{
+void MainWindow::clearSketch() {
     m_document.sketch().clear();
     m_selectedEntityId = -1;
     if (m_view) {
@@ -970,13 +909,11 @@ void MainWindow::clearSketch()
     statusBar()->showMessage(tr("Sketch cleared"), 3000);
 }
 
-void MainWindow::onSketchStatus(const QString& message)
-{
+void MainWindow::onSketchStatus(const QString& message) {
     statusBar()->showMessage(message, 4000);
 }
 
-void MainWindow::onSketchSelection(int entityId)
-{
+void MainWindow::onSketchSelection(int entityId) {
     m_selectedEntityId = entityId;
     if (entityId < 0) {
         statusBar()->showMessage(tr("No sketch entity selected"), 3000);
@@ -1001,8 +938,7 @@ void MainWindow::onSketchSelection(int entityId)
     statusBar()->showMessage(tr("Selected %1 (id %2)").arg(kind).arg(entityId), 4000);
 }
 
-void MainWindow::onFeatureListSelection()
-{
+void MainWindow::onFeatureListSelection() {
     if (!m_featureList || !m_featureList->currentItem()) {
         return;
     }
@@ -1020,8 +956,7 @@ void MainWindow::onFeatureListSelection()
                              3000);
 }
 
-void MainWindow::editSelectedFeature()
-{
+void MainWindow::editSelectedFeature() {
     if (!m_featureList || !m_featureList->currentItem()) {
         statusBar()->showMessage(tr("Select a feature in the history list"), 4000);
         return;
@@ -1051,8 +986,7 @@ void MainWindow::editSelectedFeature()
     updateWindowTitle();
 }
 
-void MainWindow::clearFeatureHistory()
-{
+void MainWindow::clearFeatureHistory() {
     m_document.history().clear();
     refreshFeatureList();
     if (m_view) {

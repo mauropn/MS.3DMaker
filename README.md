@@ -18,12 +18,14 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 5.4 — Documents: `.ms3d` New/Open/Save/Save As with schema versioning (see [docs/development/phase5-m5-documents.md](docs/development/phase5-m5-documents.md))  
 - Phase 5.5 — STEP interchange (see [docs/development/phase5-m6-step.md](docs/development/phase5-m6-step.md))  
 - Phase 5.6 — Assemblies & drawings (see [docs/development/phase5-m7-assemblies-drawings.md](docs/development/phase5-m7-assemblies-drawings.md))  
-- Phase 5.7 — AI Assist (see [docs/development/phase5-m8-ai-assist.md](docs/development/phase5-m8-ai-assist.md))
+- Phase 5.7 — AI Assist (see [docs/development/phase5-m8-ai-assist.md](docs/development/phase5-m8-ai-assist.md))  
+- Phase 6 — Community / CI (see [docs/development/phase6-community-ci.md](docs/development/phase6-community-ci.md))
 
 ## Community
 
 - [GOVERNANCE.md](GOVERNANCE.md) — founder-led project  
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to contribute  
+- [docs/architecture.md](docs/architecture.md) · [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/RELEASE.md](docs/RELEASE.md)  
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · [SECURITY.md](SECURITY.md) · [SUPPORT.md](SUPPORT.md)  
 - [CHANGELOG.md](CHANGELOG.md) · [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 

@@ -13,8 +13,7 @@
 
 namespace ms3d::features {
 
-const char* featureKindName(FeatureKind kind)
-{
+const char* featureKindName(FeatureKind kind) {
     switch (kind) {
     case FeatureKind::Box:
         return "Box";
@@ -36,8 +35,7 @@ const char* featureKindName(FeatureKind kind)
     return "Feature";
 }
 
-bool featureKindFromName(const std::string& name, FeatureKind& out)
-{
+bool featureKindFromName(const std::string& name, FeatureKind& out) {
     if (name == "Box") {
         out = FeatureKind::Box;
         return true;
@@ -73,26 +71,22 @@ bool featureKindFromName(const std::string& name, FeatureKind& out)
     return false;
 }
 
-bool FeatureHistory::isBooleanKind(FeatureKind kind)
-{
-    return kind == FeatureKind::BooleanUnion || kind == FeatureKind::BooleanCut
-           || kind == FeatureKind::BooleanCommon;
+bool FeatureHistory::isBooleanKind(FeatureKind kind) {
+    return kind == FeatureKind::BooleanUnion || kind == FeatureKind::BooleanCut ||
+           kind == FeatureKind::BooleanCommon;
 }
 
-int FeatureHistory::nextId()
-{
+int FeatureHistory::nextId() {
     return m_nextId++;
 }
 
-void FeatureHistory::clear()
-{
+void FeatureHistory::clear() {
     m_features.clear();
     m_nextId = 1;
     m_nameSerial = 1;
 }
 
-void FeatureHistory::replaceContents(std::vector<Feature> features, int nextId, int nameSerial)
-{
+void FeatureHistory::replaceContents(std::vector<Feature> features, int nextId, int nameSerial) {
     m_features = std::move(features);
     for (auto& f : m_features) {
         f.dirty = true;
@@ -104,8 +98,7 @@ void FeatureHistory::replaceContents(std::vector<Feature> features, int nextId, 
     m_nameSerial = nameSerial > 0 ? nameSerial : 1;
 }
 
-const Feature* FeatureHistory::featurePtr(int id) const
-{
+const Feature* FeatureHistory::featurePtr(int id) const {
     for (const auto& f : m_features) {
         if (f.id == id) {
             return &f;
@@ -114,8 +107,7 @@ const Feature* FeatureHistory::featurePtr(int id) const
     return nullptr;
 }
 
-Feature* FeatureHistory::findMutable(int id)
-{
+Feature* FeatureHistory::findMutable(int id) {
     for (auto& f : m_features) {
         if (f.id == id) {
             return &f;
@@ -124,24 +116,22 @@ Feature* FeatureHistory::findMutable(int id)
     return nullptr;
 }
 
-std::optional<Feature> FeatureHistory::find(int id) const
-{
+std::optional<Feature> FeatureHistory::find(int id) const {
     if (const auto* f = featurePtr(id)) {
         return *f;
     }
     return std::nullopt;
 }
 
-std::optional<Feature> FeatureHistory::tip() const
-{
+std::optional<Feature> FeatureHistory::tip() const {
     if (m_features.empty()) {
         return std::nullopt;
     }
     return m_features.back();
 }
 
-double FeatureHistory::paramOr(const Feature& feature, const std::string& key, double fallback) const
-{
+double FeatureHistory::paramOr(const Feature& feature, const std::string& key,
+                               double fallback) const {
     for (const auto& p : feature.params) {
         if (p.key == key) {
             return p.value;
@@ -151,8 +141,7 @@ double FeatureHistory::paramOr(const Feature& feature, const std::string& key, d
 }
 
 int FeatureHistory::addPrimitive(FeatureKind kind, const std::vector<FeatureParam>& params,
-                                 const std::string& namePrefix)
-{
+                                 const std::string& namePrefix) {
     if (isBooleanKind(kind)) {
         return -1;
     }
@@ -169,8 +158,7 @@ int FeatureHistory::addPrimitive(FeatureKind kind, const std::vector<FeaturePara
 }
 
 int FeatureHistory::addBoolean(FeatureKind kind, int featureA, int featureB,
-                               const std::string& namePrefix)
-{
+                               const std::string& namePrefix) {
     if (!isBooleanKind(kind)) {
         return -1;
     }
@@ -189,19 +177,18 @@ int FeatureHistory::addBoolean(FeatureKind kind, int featureA, int featureB,
     return f.id;
 }
 
-std::vector<int> FeatureHistory::directDependents(int id) const
-{
+std::vector<int> FeatureHistory::directDependents(int id) const {
     std::vector<int> out;
     for (const auto& f : m_features) {
-        if (std::find(f.dependencyIds.begin(), f.dependencyIds.end(), id) != f.dependencyIds.end()) {
+        if (std::find(f.dependencyIds.begin(), f.dependencyIds.end(), id) !=
+            f.dependencyIds.end()) {
             out.push_back(f.id);
         }
     }
     return out;
 }
 
-void FeatureHistory::collectDependents(int id, std::unordered_set<int>& out) const
-{
+void FeatureHistory::collectDependents(int id, std::unordered_set<int>& out) const {
     for (int dep : directDependents(id)) {
         if (out.insert(dep).second) {
             collectDependents(dep, out);
@@ -209,15 +196,13 @@ void FeatureHistory::collectDependents(int id, std::unordered_set<int>& out) con
     }
 }
 
-std::vector<int> FeatureHistory::allDependents(int id) const
-{
+std::vector<int> FeatureHistory::allDependents(int id) const {
     std::unordered_set<int> set;
     collectDependents(id, set);
     return std::vector<int>(set.begin(), set.end());
 }
 
-void FeatureHistory::invalidate(int id)
-{
+void FeatureHistory::invalidate(int id) {
     auto* f = findMutable(id);
     if (!f) {
         return;
@@ -233,8 +218,7 @@ void FeatureHistory::invalidate(int id)
 }
 
 bool FeatureHistory::setParameter(int id, const std::string& key, double value,
-                                  std::string* errorOut)
-{
+                                  std::string* errorOut) {
     auto* f = findMutable(id);
     if (!f) {
         if (errorOut) {
@@ -264,8 +248,7 @@ bool FeatureHistory::setParameter(int id, const std::string& key, double value,
 }
 
 bool FeatureHistory::setParameters(int id, const std::vector<FeatureParam>& params,
-                                   std::string* errorOut)
-{
+                                   std::string* errorOut) {
     auto* f = findMutable(id);
     if (!f) {
         if (errorOut) {
@@ -278,8 +261,7 @@ bool FeatureHistory::setParameters(int id, const std::vector<FeatureParam>& para
     return true;
 }
 
-ms3d::geometry::SolidResult FeatureHistory::evaluate(const Feature& feature) const
-{
+ms3d::geometry::SolidResult FeatureHistory::evaluate(const Feature& feature) const {
     using ms3d::geometry::SolidResult;
 
     auto applyTranslation = [&](SolidResult created) -> SolidResult {
@@ -320,9 +302,9 @@ ms3d::geometry::SolidResult FeatureHistory::evaluate(const Feature& feature) con
                                                               paramOr(feature, "depth", 0),
                                                               paramOr(feature, "height", 0)));
     case FeatureKind::Revolution:
-        return applyTranslation(ms3d::geometry::makeRevolution(
-            paramOr(feature, "innerRadius", 0), paramOr(feature, "outerRadius", 0),
-            paramOr(feature, "height", 0)));
+        return applyTranslation(ms3d::geometry::makeRevolution(paramOr(feature, "innerRadius", 0),
+                                                               paramOr(feature, "outerRadius", 0),
+                                                               paramOr(feature, "height", 0)));
     case FeatureKind::BooleanUnion:
     case FeatureKind::BooleanCut:
     case FeatureKind::BooleanCommon: {
@@ -355,8 +337,7 @@ ms3d::geometry::SolidResult FeatureHistory::evaluate(const Feature& feature) con
     return unknown;
 }
 
-std::vector<int> FeatureHistory::topologicalOrder() const
-{
+std::vector<int> FeatureHistory::topologicalOrder() const {
     std::unordered_map<int, int> indegree;
     std::unordered_map<int, std::vector<int>> adj;
     for (const auto& f : m_features) {
@@ -388,13 +369,11 @@ std::vector<int> FeatureHistory::topologicalOrder() const
     return order;
 }
 
-bool FeatureHistory::hasCycle() const
-{
+bool FeatureHistory::hasCycle() const {
     return topologicalOrder().size() != m_features.size();
 }
 
-RecomputeReport FeatureHistory::recompute()
-{
+RecomputeReport FeatureHistory::recompute() {
     RecomputeReport report;
     if (hasCycle()) {
         report.ok = false;

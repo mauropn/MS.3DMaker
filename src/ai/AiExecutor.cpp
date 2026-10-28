@@ -5,8 +5,7 @@
 
 namespace ms3d::ai {
 
-AiExecutionResult executePlan(ms3d::features::FeatureHistory& history, const AiPlan& plan)
-{
+AiExecutionResult executePlan(ms3d::features::FeatureHistory& history, const AiPlan& plan) {
     AiExecutionResult result;
     const auto validation = validatePlan(plan);
     if (!validation.ok) {

@@ -16,16 +16,13 @@ namespace ms3d::ui {
 
 namespace {
 
-ms3d::i18n::LanguageService* languageService()
-{
+ms3d::i18n::LanguageService* languageService() {
     return qApp->findChild<ms3d::i18n::LanguageService*>();
 }
 
 } // namespace
 
-PreferencesDialog::PreferencesDialog(QWidget* parent)
-    : QDialog(parent)
-{
+PreferencesDialog::PreferencesDialog(QWidget* parent) : QDialog(parent) {
     setModal(true);
     resize(420, 160);
 
@@ -52,12 +49,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
     retranslateUi();
 }
 
-void PreferencesDialog::loadLocales()
-{
+void PreferencesDialog::loadLocales() {
     m_languageCombo->clear();
     auto* service = languageService();
-    const QString current = service ? service->currentLocaleId()
-                                    : ms3d::i18n::LanguageService::defaultLocaleId();
+    const QString current =
+        service ? service->currentLocaleId() : ms3d::i18n::LanguageService::defaultLocaleId();
 
     for (const auto& info : ms3d::i18n::LanguageService::supportedLocales()) {
         m_languageCombo->addItem(info.nativeName, info.id);
@@ -67,23 +63,20 @@ void PreferencesDialog::loadLocales()
     }
 }
 
-void PreferencesDialog::retranslateUi()
-{
+void PreferencesDialog::retranslateUi() {
     setWindowTitle(tr("Preferences"));
     m_languageLabel->setText(tr("Language"));
     // Native language names stay as stored in LocaleInfo (not translated via tr).
 }
 
-void PreferencesDialog::changeEvent(QEvent* event)
-{
+void PreferencesDialog::changeEvent(QEvent* event) {
     if (event->type() == QEvent::LanguageChange) {
         retranslateUi();
     }
     QDialog::changeEvent(event);
 }
 
-void PreferencesDialog::apply()
-{
+void PreferencesDialog::apply() {
     auto* service = languageService();
     if (!service) {
         return;

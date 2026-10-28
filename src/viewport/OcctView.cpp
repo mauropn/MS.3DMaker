@@ -47,8 +47,7 @@
 namespace ms3d::viewport {
 namespace {
 
-gp_Ax2 planeAx2(ms3d::sketch::PlaneId plane)
-{
+gp_Ax2 planeAx2(ms3d::sketch::PlaneId plane) {
     switch (plane) {
     case ms3d::sketch::PlaneId::XZ:
         return gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0), gp_Dir(1, 0, 0));
@@ -62,9 +61,7 @@ gp_Ax2 planeAx2(ms3d::sketch::PlaneId plane)
 
 } // namespace
 
-OcctView::OcctView(QWidget* parent)
-    : QWidget(parent)
-{
+OcctView::OcctView(QWidget* parent) : QWidget(parent) {
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setMouseTracking(true);
@@ -74,8 +71,7 @@ OcctView::OcctView(QWidget* parent)
 
 OcctView::~OcctView() = default;
 
-bool OcctView::initializeViewer(QString* errorOut)
-{
+bool OcctView::initializeViewer(QString* errorOut) {
     if (m_initialized) {
         return true;
     }
@@ -124,8 +120,7 @@ bool OcctView::initializeViewer(QString* errorOut)
     }
 }
 
-void OcctView::ensureWindowMapped()
-{
+void OcctView::ensureWindowMapped() {
     if (!m_view) {
         return;
     }
@@ -143,8 +138,7 @@ void OcctView::ensureWindowMapped()
     }
 }
 
-bool OcctView::displaySolid(const TopoDS_Shape& shape, QString* errorOut)
-{
+bool OcctView::displaySolid(const TopoDS_Shape& shape, QString* errorOut) {
     if (!initializeViewer(errorOut)) {
         return false;
     }
@@ -177,8 +171,7 @@ bool OcctView::displaySolid(const TopoDS_Shape& shape, QString* errorOut)
     }
 }
 
-bool OcctView::displayBox(double dx, double dy, double dz, QString* errorOut)
-{
+bool OcctView::displayBox(double dx, double dy, double dz, QString* errorOut) {
     const auto created = ms3d::geometry::makeBox(dx, dy, dz);
     if (!created.ok) {
         if (errorOut) {
@@ -189,8 +182,7 @@ bool OcctView::displayBox(double dx, double dy, double dz, QString* errorOut)
     return displaySolid(created.solid, errorOut);
 }
 
-void OcctView::clearSolidDisplay()
-{
+void OcctView::clearSolidDisplay() {
     if (m_context && !m_displayedAis.IsNull()) {
         m_context->Remove(m_displayedAis, Standard_False);
         m_displayedAis.Nullify();
@@ -198,15 +190,13 @@ void OcctView::clearSolidDisplay()
     }
 }
 
-void OcctView::setSketch(ms3d::sketch::Sketch* sketch)
-{
+void OcctView::setSketch(ms3d::sketch::Sketch* sketch) {
     m_sketch = sketch;
     m_hasSketchAnchor = false;
     refreshSketchDisplay();
 }
 
-void OcctView::setSketchTool(SketchTool tool)
-{
+void OcctView::setSketchTool(SketchTool tool) {
     m_sketchTool = tool;
     m_hasSketchAnchor = false;
     if (tool != SketchTool::None) {
@@ -215,8 +205,7 @@ void OcctView::setSketchTool(SketchTool tool)
     }
 }
 
-void OcctView::setSketchPlane(ms3d::sketch::PlaneId plane)
-{
+void OcctView::setSketchPlane(ms3d::sketch::PlaneId plane) {
     if (!m_sketch) {
         return;
     }
@@ -226,8 +215,7 @@ void OcctView::setSketchPlane(ms3d::sketch::PlaneId plane)
     emit sketchChanged();
 }
 
-void OcctView::clearSketchAis()
-{
+void OcctView::clearSketchAis() {
     if (!m_context) {
         return;
     }
@@ -240,8 +228,7 @@ void OcctView::clearSketchAis()
     m_sketchAisEntityIds.clear();
 }
 
-void OcctView::refreshSketchDisplay()
-{
+void OcctView::refreshSketchDisplay() {
     if (!initializeViewer(nullptr) || !m_sketch || !m_context) {
         return;
     }
@@ -284,8 +271,7 @@ void OcctView::refreshSketchDisplay()
     redraw();
 }
 
-bool OcctView::pickSketchUv(int sx, int sy, ms3d::sketch::Vec2& uv) const
-{
+bool OcctView::pickSketchUv(int sx, int sy, ms3d::sketch::Vec2& uv) const {
     if (!m_view || !m_sketch) {
         return false;
     }
@@ -316,8 +302,7 @@ bool OcctView::pickSketchUv(int sx, int sy, ms3d::sketch::Vec2& uv) const
     return true;
 }
 
-void OcctView::selectSketchEntityAt(int sx, int sy)
-{
+void OcctView::selectSketchEntityAt(int sx, int sy) {
     if (!m_context || !m_view) {
         return;
     }
@@ -341,8 +326,7 @@ void OcctView::selectSketchEntityAt(int sx, int sy)
     redraw();
 }
 
-bool OcctView::handleSketchPress(QMouseEvent* event)
-{
+bool OcctView::handleSketchPress(QMouseEvent* event) {
     if (!m_sketch || m_sketchTool == SketchTool::None || event->button() != Qt::LeftButton) {
         return false;
     }
@@ -391,8 +375,7 @@ bool OcctView::handleSketchPress(QMouseEvent* event)
     return true;
 }
 
-void OcctView::fitAll()
-{
+void OcctView::fitAll() {
     if (m_view) {
         m_view->FitAll(0.1, Standard_False);
         m_view->ZFitAll();
@@ -400,20 +383,17 @@ void OcctView::fitAll()
     }
 }
 
-void OcctView::redraw()
-{
+void OcctView::redraw() {
     if (m_view) {
         m_view->Redraw();
     }
 }
 
-void OcctView::paintEvent(QPaintEvent*)
-{
+void OcctView::paintEvent(QPaintEvent*) {
     redraw();
 }
 
-void OcctView::resizeEvent(QResizeEvent* event)
-{
+void OcctView::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     if (m_view) {
         m_view->MustBeResized();
@@ -421,8 +401,7 @@ void OcctView::resizeEvent(QResizeEvent* event)
     }
 }
 
-void OcctView::showEvent(QShowEvent* event)
-{
+void OcctView::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
     if (!m_initialized) {
         QString err;
@@ -437,8 +416,7 @@ void OcctView::showEvent(QShowEvent* event)
     }
 }
 
-void OcctView::wheelEvent(QWheelEvent* event)
-{
+void OcctView::wheelEvent(QWheelEvent* event) {
     if (!m_view) {
         return;
     }
@@ -448,8 +426,7 @@ void OcctView::wheelEvent(QWheelEvent* event)
     }
 }
 
-void OcctView::mousePressEvent(QMouseEvent* event)
-{
+void OcctView::mousePressEvent(QMouseEvent* event) {
     m_lastButton = event->button();
     m_lastPos = event->pos();
 
@@ -477,13 +454,11 @@ void OcctView::mousePressEvent(QMouseEvent* event)
     }
 }
 
-void OcctView::mouseReleaseEvent(QMouseEvent*)
-{
+void OcctView::mouseReleaseEvent(QMouseEvent*) {
     m_lastButton = Qt::NoButton;
 }
 
-void OcctView::mouseMoveEvent(QMouseEvent* event)
-{
+void OcctView::mouseMoveEvent(QMouseEvent* event) {
     if (!m_view) {
         return;
     }
@@ -494,8 +469,8 @@ void OcctView::mouseMoveEvent(QMouseEvent* event)
 
     if (m_lastButton == Qt::LeftButton && (event->modifiers() & Qt::ShiftModifier)) {
         m_view->Rotation(pos.x(), pos.y());
-    } else if (m_lastButton == Qt::MiddleButton
-               || (m_lastButton == Qt::LeftButton && (event->modifiers() & Qt::AltModifier))) {
+    } else if (m_lastButton == Qt::MiddleButton ||
+               (m_lastButton == Qt::LeftButton && (event->modifiers() & Qt::AltModifier))) {
         m_view->Pan(dx, -dy);
     } else if (m_lastButton == Qt::RightButton) {
         m_view->Zoom(m_lastPos.x(), m_lastPos.y(), pos.x(), pos.y());

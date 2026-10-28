@@ -13,8 +13,7 @@ private slots:
     void importRejectsMissingFile();
 };
 
-void TestStep::exportImportBoxRoundTrip()
-{
+void TestStep::exportImportBoxRoundTrip() {
     const auto box = ms3d::geometry::makeBox(25.0, 40.0, 15.0);
     QVERIFY2(box.ok, box.error.c_str());
 
@@ -29,15 +28,13 @@ void TestStep::exportImportBoxRoundTrip()
     QVERIFY(QFileInfo::exists(path));
 }
 
-void TestStep::exportRejectsNullShape()
-{
+void TestStep::exportRejectsNullShape() {
     TopoDS_Shape nullShape;
     const auto result = ms3d::io::exportStep(nullShape, "unused.step");
     QVERIFY(!result.ok);
 }
 
-void TestStep::importRejectsMissingFile()
-{
+void TestStep::importRejectsMissingFile() {
     const auto result = ms3d::io::importStep("Z:/definitely/missing/ms3d_step_test.step");
     QVERIFY(!result.ok);
 }

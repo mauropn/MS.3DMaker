@@ -9,15 +9,13 @@
 namespace ms3d::ai {
 namespace {
 
-std::string toLower(std::string s)
-{
+std::string toLower(std::string s) {
     std::transform(s.begin(), s.end(), s.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return s;
 }
 
-bool extractTripleMm(const std::string& text, double& a, double& b, double& c)
-{
+bool extractTripleMm(const std::string& text, double& a, double& b, double& c) {
     // 100 x 60 x 30 or 100×60×30 or 100*60*30
     static const std::regex re(
         R"((\d+(?:\.\d+)?)\s*[x×\*]\s*(\d+(?:\.\d+)?)\s*[x×\*]\s*(\d+(?:\.\d+)?))",
@@ -32,8 +30,7 @@ bool extractTripleMm(const std::string& text, double& a, double& b, double& c)
     return a > 0 && b > 0 && c > 0;
 }
 
-bool extractWallMm(const std::string& text, double& wall)
-{
+bool extractWallMm(const std::string& text, double& wall) {
     static const std::regex re(R"((\d+(?:\.\d+)?)\s*mm\s*walls?)", std::regex::icase);
     std::smatch m;
     if (!std::regex_search(text, m, re)) {
@@ -50,31 +47,26 @@ bool extractWallMm(const std::string& text, double& wall)
     return wall > 0;
 }
 
-bool wantsEnclosure(const std::string& lower)
-{
-    return lower.find("enclosure") != std::string::npos
-           || lower.find("box with") != std::string::npos
-           || (lower.find("walls") != std::string::npos && lower.find("hole") != std::string::npos);
+bool wantsEnclosure(const std::string& lower) {
+    return lower.find("enclosure") != std::string::npos ||
+           lower.find("box with") != std::string::npos ||
+           (lower.find("walls") != std::string::npos && lower.find("hole") != std::string::npos);
 }
 
-bool wantsSimpleBox(const std::string& lower)
-{
+bool wantsSimpleBox(const std::string& lower) {
     return lower.find("box") != std::string::npos || lower.find("rectangle") != std::string::npos;
 }
 
-bool wantsCylinder(const std::string& lower)
-{
+bool wantsCylinder(const std::string& lower) {
     return lower.find("cylinder") != std::string::npos || lower.find("tube") != std::string::npos;
 }
 
-bool wantsSphere(const std::string& lower)
-{
+bool wantsSphere(const std::string& lower) {
     return lower.find("sphere") != std::string::npos || lower.find("ball") != std::string::npos;
 }
 
 AiStep makeStep(int id, AiOpKind op, std::string label,
-                std::vector<ms3d::features::FeatureParam> params, int a = -1, int b = -1)
-{
+                std::vector<ms3d::features::FeatureParam> params, int a = -1, int b = -1) {
     AiStep s;
     s.id = id;
     s.op = op;
@@ -85,8 +77,7 @@ AiStep makeStep(int id, AiOpKind op, std::string label,
     return s;
 }
 
-PlanResult planEnclosure(const std::string& prompt, double dx, double dy, double dz, double wall)
-{
+PlanResult planEnclosure(const std::string& prompt, double dx, double dy, double dz, double wall) {
     PlanResult result;
     result.plan.sourcePrompt = prompt;
 
@@ -103,24 +94,22 @@ PlanResult planEnclosure(const std::string& prompt, double dx, double dy, double
 
     int next = 1;
     // Outer body
-    result.plan.steps.push_back(makeStep(
-        next++, AiOpKind::MakeBox, "Outer enclosure body",
-        {{"dx", dx}, {"dy", dy}, {"dz", dz}}));
+    result.plan.steps.push_back(makeStep(next++, AiOpKind::MakeBox, "Outer enclosure body",
+                                         {{"dx", dx}, {"dy", dy}, {"dz", dz}}));
     const int outerId = 1;
 
     // Inner cavity (inset on XY, from z=wall so bottom remains)
-    result.plan.steps.push_back(makeStep(
-        next++, AiOpKind::MakeBox, "Inner cavity volume",
-        {{"dx", innerDx},
-         {"dy", innerDy},
-         {"dz", innerDz},
-         {"tx", wall},
-         {"ty", wall},
-         {"tz", wall}}));
+    result.plan.steps.push_back(makeStep(next++, AiOpKind::MakeBox, "Inner cavity volume",
+                                         {{"dx", innerDx},
+                                          {"dy", innerDy},
+                                          {"dz", innerDz},
+                                          {"tx", wall},
+                                          {"ty", wall},
+                                          {"tz", wall}}));
     const int cavityId = 2;
 
-    result.plan.steps.push_back(makeStep(next++, AiOpKind::BooleanCut,
-                                         "Cut cavity from outer body", {}, outerId, cavityId));
+    result.plan.steps.push_back(makeStep(next++, AiOpKind::BooleanCut, "Cut cavity from outer body",
+                                         {}, outerId, cavityId));
     int bodyId = 3;
 
     // Four mounting holes near corners
@@ -132,11 +121,7 @@ PlanResult planEnclosure(const std::string& prompt, double dx, double dy, double
         label << "Mounting hole cylinder " << (i + 1);
         result.plan.steps.push_back(makeStep(
             cylId, AiOpKind::MakeCylinder, label.str(),
-            {{"radius", holeR},
-             {"height", dz + 2.0},
-             {"tx", xs[i]},
-             {"ty", ys[i]},
-             {"tz", -1.0}}));
+            {{"radius", holeR}, {"height", dz + 2.0}, {"tx", xs[i]}, {"ty", ys[i]}, {"tz", -1.0}}));
         const int cutId = next++;
         result.plan.steps.push_back(makeStep(cutId, AiOpKind::BooleanCut,
                                              "Cut mounting hole " + std::to_string(i + 1), {},
@@ -154,8 +139,7 @@ PlanResult planEnclosure(const std::string& prompt, double dx, double dy, double
 
 } // namespace
 
-PlanResult planFromPrompt(const std::string& prompt)
-{
+PlanResult planFromPrompt(const std::string& prompt) {
     PlanResult result;
     result.plan.sourcePrompt = prompt;
     if (prompt.find_first_not_of(" \t\r\n") == std::string::npos) {
@@ -173,8 +157,8 @@ PlanResult planFromPrompt(const std::string& prompt)
     }
 
     if (wantsSimpleBox(lower) && extractTripleMm(prompt, dx, dy, dz)) {
-        result.plan.steps.push_back(makeStep(1, AiOpKind::MakeBox, "Box solid",
-                                             {{"dx", dx}, {"dy", dy}, {"dz", dz}}));
+        result.plan.steps.push_back(
+            makeStep(1, AiOpKind::MakeBox, "Box solid", {{"dx", dx}, {"dy", dy}, {"dz", dz}}));
         result.plan.notes.push_back("Parsed as a single axis-aligned box (mm).");
         result.ok = true;
         return result;
@@ -214,9 +198,8 @@ PlanResult planFromPrompt(const std::string& prompt)
         return result;
     }
 
-    result.error =
-        "Unsupported prompt. Try: enclosure 100 x 60 x 30 mm with 3 mm walls; "
-        "or box 100 x 60 x 30; or cylinder r=25 h=60; or sphere r=40.";
+    result.error = "Unsupported prompt. Try: enclosure 100 x 60 x 30 mm with 3 mm walls; "
+                   "or box 100 x 60 x 30; or cylinder r=25 h=60; or sphere r=40.";
     return result;
 }
 

@@ -8,9 +8,7 @@
 namespace ms3d::ui {
 
 FeatureEditDialog::FeatureEditDialog(const ms3d::features::Feature& feature, QWidget* parent)
-    : QDialog(parent)
-    , m_kind(feature.kind)
-{
+    : QDialog(parent), m_kind(feature.kind) {
     auto* root = new QVBoxLayout(this);
     m_form = new QFormLayout();
     root->addLayout(m_form);
@@ -34,13 +32,11 @@ FeatureEditDialog::FeatureEditDialog(const ms3d::features::Feature& feature, QWi
     retranslateUi();
 }
 
-void FeatureEditDialog::retranslateUi()
-{
+void FeatureEditDialog::retranslateUi() {
     setWindowTitle(tr("Edit feature parameters"));
 }
 
-std::vector<ms3d::features::FeatureParam> FeatureEditDialog::parameters() const
-{
+std::vector<ms3d::features::FeatureParam> FeatureEditDialog::parameters() const {
     std::vector<ms3d::features::FeatureParam> out;
     out.reserve(m_spins.size());
     for (size_t i = 0; i < m_spins.size(); ++i) {

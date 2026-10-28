@@ -18,8 +18,7 @@ private slots:
     void planeNames();
 };
 
-void TestSketch::addLineCircleRectangle()
-{
+void TestSketch::addLineCircleRectangle() {
     ms3d::sketch::Sketch sketch;
     const int line = sketch.addLine({0, 0}, {10, 0});
     const int circ = sketch.addCircle({5, 5}, 3);
@@ -30,8 +29,7 @@ void TestSketch::addLineCircleRectangle()
     QCOMPARE(sketch.entities().size(), size_t(3));
 }
 
-void TestSketch::horizontalConstraintApplied()
-{
+void TestSketch::horizontalConstraintApplied() {
     ms3d::sketch::Sketch sketch;
     const int id = sketch.addLine({0, 0}, {10, 4});
     sketch.addConstraint(ms3d::sketch::ConstraintKind::Horizontal, id);
@@ -42,8 +40,7 @@ void TestSketch::horizontalConstraintApplied()
     QVERIFY(sketch.validate().ok);
 }
 
-void TestSketch::verticalConstraintApplied()
-{
+void TestSketch::verticalConstraintApplied() {
     ms3d::sketch::Sketch sketch;
     const int id = sketch.addLine({0, 0}, {4, 10});
     sketch.addConstraint(ms3d::sketch::ConstraintKind::Vertical, id);
@@ -54,8 +51,7 @@ void TestSketch::verticalConstraintApplied()
     QVERIFY(sketch.validate().ok);
 }
 
-void TestSketch::fixedLengthConstraint()
-{
+void TestSketch::fixedLengthConstraint() {
     ms3d::sketch::Sketch sketch;
     const int id = sketch.addLine({0, 0}, {10, 0});
     sketch.addConstraint(ms3d::sketch::ConstraintKind::FixedLength, id, -1, 25.0);
@@ -66,15 +62,13 @@ void TestSketch::fixedLengthConstraint()
     QVERIFY(sketch.validate().ok);
 }
 
-void TestSketch::validateDetectsZeroLine()
-{
+void TestSketch::validateDetectsZeroLine() {
     ms3d::sketch::Sketch sketch;
     sketch.addLine({1, 1}, {1, 1});
     QVERIFY(!sketch.validate().ok);
 }
 
-void TestSketch::dimensionsCreated()
-{
+void TestSketch::dimensionsCreated() {
     ms3d::sketch::Sketch sketch;
     sketch.addLine({0, 0}, {10, 0});
     sketch.addCircle({0, 0}, 5);
@@ -84,8 +78,7 @@ void TestSketch::dimensionsCreated()
     }
 }
 
-void TestSketch::buildDisplayCompoundOk()
-{
+void TestSketch::buildDisplayCompoundOk() {
     ms3d::sketch::Sketch sketch(ms3d::sketch::PlaneId::XY);
     sketch.addLine({0, 0}, {30, 0});
     sketch.addCircle({15, 10}, 5);
@@ -96,8 +89,7 @@ void TestSketch::buildDisplayCompoundOk()
     QVERIFY(!compound.IsNull());
 }
 
-void TestSketch::planeNames()
-{
+void TestSketch::planeNames() {
     QCOMPARE(QString(ms3d::sketch::planeIdName(ms3d::sketch::PlaneId::XY)), QString("XY"));
     QCOMPARE(QString(ms3d::sketch::planeIdName(ms3d::sketch::PlaneId::XZ)), QString("XZ"));
     QCOMPARE(QString(ms3d::sketch::planeIdName(ms3d::sketch::PlaneId::YZ)), QString("YZ"));

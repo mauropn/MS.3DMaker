@@ -9,16 +9,15 @@
 #include <STEPControl_Reader.hxx>
 #include <STEPControl_Writer.hxx>
 #include <Standard_Failure.hxx>
-#include <TopExp_Explorer.hxx>
 #include <TopAbs_ShapeEnum.hxx>
+#include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Solid.hxx>
 
 namespace ms3d::io {
 namespace {
 
-const char* occtSchemaToken(StepSchema schema)
-{
+const char* occtSchemaToken(StepSchema schema) {
     // Tokens registered by STEPControl_Controller (OCCT 7.x).
     switch (schema) {
     case StepSchema::AP203:
@@ -31,15 +30,14 @@ const char* occtSchemaToken(StepSchema schema)
     }
 }
 
-bool applyWriteSchema(StepSchema schema, std::string* errorOut)
-{
+bool applyWriteSchema(StepSchema schema, std::string* errorOut) {
     STEPControl_Controller::Init();
     const char* token = occtSchemaToken(schema);
     if (!Interface_Static::SetCVal("write.step.schema", token)) {
         // Fall back to whatever default the controller registered.
         if (errorOut) {
-            *errorOut = std::string("Failed to set write.step.schema to ") + token
-                        + "; continuing with OCCT default schema";
+            *errorOut = std::string("Failed to set write.step.schema to ") + token +
+                        "; continuing with OCCT default schema";
         }
         // Non-fatal: writer still works with default
     }
@@ -47,8 +45,7 @@ bool applyWriteSchema(StepSchema schema, std::string* errorOut)
     return true;
 }
 
-bool shapeHasValidSolid(const TopoDS_Shape& shape)
-{
+bool shapeHasValidSolid(const TopoDS_Shape& shape) {
     if (shape.IsNull()) {
         return false;
     }
@@ -67,8 +64,7 @@ bool shapeHasValidSolid(const TopoDS_Shape& shape)
 
 } // namespace
 
-const char* stepSchemaName(StepSchema schema)
-{
+const char* stepSchemaName(StepSchema schema) {
     switch (schema) {
     case StepSchema::AP203:
         return "AP203";
@@ -80,8 +76,7 @@ const char* stepSchemaName(StepSchema schema)
     }
 }
 
-StepResult importStep(const std::string& filePath)
-{
+StepResult importStep(const std::string& filePath) {
     StepResult result;
     if (filePath.empty()) {
         result.error = "STEP import path is empty";
@@ -120,7 +115,8 @@ StepResult importStep(const std::string& filePath)
         result.ok = true;
         return result;
     } catch (const Standard_Failure& ex) {
-        result.error = ex.GetMessageString() ? ex.GetMessageString() : "OCCT Standard_Failure on STEP import";
+        result.error =
+            ex.GetMessageString() ? ex.GetMessageString() : "OCCT Standard_Failure on STEP import";
         return result;
     } catch (...) {
         result.error = "Unknown exception during STEP import";
@@ -128,8 +124,7 @@ StepResult importStep(const std::string& filePath)
     }
 }
 
-StepResult exportStep(const TopoDS_Shape& shape, const std::string& filePath, StepSchema schema)
-{
+StepResult exportStep(const TopoDS_Shape& shape, const std::string& filePath, StepSchema schema) {
     StepResult result;
     result.shape = shape;
     if (shape.IsNull()) {
@@ -162,7 +157,8 @@ StepResult exportStep(const TopoDS_Shape& shape, const std::string& filePath, St
         result.ok = true;
         return result;
     } catch (const Standard_Failure& ex) {
-        result.error = ex.GetMessageString() ? ex.GetMessageString() : "OCCT Standard_Failure on STEP export";
+        result.error =
+            ex.GetMessageString() ? ex.GetMessageString() : "OCCT Standard_Failure on STEP export";
         return result;
     } catch (...) {
         result.error = "Unknown exception during STEP export";
@@ -170,8 +166,8 @@ StepResult exportStep(const TopoDS_Shape& shape, const std::string& filePath, St
     }
 }
 
-StepResult roundTripStep(const TopoDS_Shape& shape, const std::string& tempFilePath, StepSchema schema)
-{
+StepResult roundTripStep(const TopoDS_Shape& shape, const std::string& tempFilePath,
+                         StepSchema schema) {
     StepResult written = exportStep(shape, tempFilePath, schema);
     if (!written.ok) {
         return written;

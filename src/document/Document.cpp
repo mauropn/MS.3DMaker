@@ -10,16 +10,14 @@
 namespace ms3d::document {
 namespace {
 
-QJsonObject vec2ToJson(const ms3d::sketch::Vec2& v)
-{
+QJsonObject vec2ToJson(const ms3d::sketch::Vec2& v) {
     QJsonObject o;
     o.insert(QStringLiteral("u"), v.u);
     o.insert(QStringLiteral("v"), v.v);
     return o;
 }
 
-bool vec2FromJson(const QJsonObject& o, ms3d::sketch::Vec2& v)
-{
+bool vec2FromJson(const QJsonObject& o, ms3d::sketch::Vec2& v) {
     if (!o.contains(QStringLiteral("u")) || !o.contains(QStringLiteral("v"))) {
         return false;
     }
@@ -30,13 +28,11 @@ bool vec2FromJson(const QJsonObject& o, ms3d::sketch::Vec2& v)
 
 } // namespace
 
-Document::Document()
-{
+Document::Document() {
     newDocument();
 }
 
-void Document::setTitle(const QString& title)
-{
+void Document::setTitle(const QString& title) {
     if (m_title == title) {
         return;
     }
@@ -44,18 +40,15 @@ void Document::setTitle(const QString& title)
     markDirty();
 }
 
-void Document::markDirty()
-{
+void Document::markDirty() {
     m_dirty = true;
 }
 
-void Document::clearDirty()
-{
+void Document::clearDirty() {
     m_dirty = false;
 }
 
-void Document::newDocument()
-{
+void Document::newDocument() {
     m_history.clear();
     m_sketch.clear();
     m_sketch.setPlane(ms3d::sketch::PlaneId::XY);
@@ -64,8 +57,7 @@ void Document::newDocument()
     m_dirty = false;
 }
 
-QString Document::statusMessage(LoadStatus status)
-{
+QString Document::statusMessage(LoadStatus status) {
     switch (status) {
     case LoadStatus::Ok:
         return QStringLiteral("OK");
@@ -87,8 +79,7 @@ QString Document::statusMessage(LoadStatus status)
     return QStringLiteral("Unknown document error");
 }
 
-QByteArray Document::toJson(bool* ok, QString* errorOut) const
-{
+QByteArray Document::toJson(bool* ok, QString* errorOut) const {
     QJsonObject root;
     root.insert(QStringLiteral("format"), QString::fromUtf8(kFormatId));
     root.insert(QStringLiteral("schemaVersion"), kSchemaVersion);
@@ -103,7 +94,8 @@ QByteArray Document::toJson(bool* ok, QString* errorOut) const
     for (const auto& f : m_history.features()) {
         QJsonObject fo;
         fo.insert(QStringLiteral("id"), f.id);
-        fo.insert(QStringLiteral("kind"), QString::fromUtf8(ms3d::features::featureKindName(f.kind)));
+        fo.insert(QStringLiteral("kind"),
+                  QString::fromUtf8(ms3d::features::featureKindName(f.kind)));
         fo.insert(QStringLiteral("name"), QString::fromStdString(f.name));
         QJsonArray params;
         for (const auto& p : f.params) {
@@ -177,21 +169,22 @@ QByteArray Document::toJson(bool* ok, QString* errorOut) const
     return doc.toJson(QJsonDocument::Indented);
 }
 
-LoadResult Document::loadFromJson(const QByteArray& bytes)
-{
+LoadResult Document::loadFromJson(const QByteArray& bytes) {
     LoadResult result;
     QJsonParseError parseError;
     const QJsonDocument doc = QJsonDocument::fromJson(bytes, &parseError);
     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
         result.status = LoadStatus::CorruptJson;
-        result.message = statusMessage(result.status) + QStringLiteral(": ") + parseError.errorString();
+        result.message =
+            statusMessage(result.status) + QStringLiteral(": ") + parseError.errorString();
         return result;
     }
 
     const QJsonObject root = doc.object();
-    if (!root.contains(QStringLiteral("format")) || !root.contains(QStringLiteral("schemaVersion"))
-        || !root.contains(QStringLiteral("features")) || !root.contains(QStringLiteral("sketch"))
-        || !root.contains(QStringLiteral("featureState"))) {
+    if (!root.contains(QStringLiteral("format")) ||
+        !root.contains(QStringLiteral("schemaVersion")) ||
+        !root.contains(QStringLiteral("features")) || !root.contains(QStringLiteral("sketch")) ||
+        !root.contains(QStringLiteral("featureState"))) {
         result.status = LoadStatus::MissingFields;
         result.message = statusMessage(result.status);
         return result;
@@ -212,16 +205,15 @@ LoadResult Document::loadFromJson(const QByteArray& bytes)
     }
     if (schema > kSchemaVersion) {
         result.status = LoadStatus::SchemaTooNew;
-        result.message = statusMessage(result.status)
-                         + QStringLiteral(" (file=%1 app=%2)").arg(schema).arg(kSchemaVersion);
+        result.message = statusMessage(result.status) +
+                         QStringLiteral(" (file=%1 app=%2)").arg(schema).arg(kSchemaVersion);
         return result;
     }
     // Backward compatibility: schema == 1 is current; older supported schemas would migrate here.
     if (schema != kSchemaVersion) {
         // Reserved for future migrations; refuse unknown past versions for now.
         result.status = LoadStatus::SchemaUnsupported;
-        result.message = statusMessage(result.status)
-                         + QStringLiteral(" (file=%1)").arg(schema);
+        result.message = statusMessage(result.status) + QStringLiteral(" (file=%1)").arg(schema);
         return result;
     }
 
@@ -242,8 +234,7 @@ LoadResult Document::loadFromJson(const QByteArray& bytes)
         f.id = fo.value(QStringLiteral("id")).toInt(-1);
         f.name = fo.value(QStringLiteral("name")).toString().toStdString();
         const QString kindName = fo.value(QStringLiteral("kind")).toString();
-        if (f.id <= 0
-            || !ms3d::features::featureKindFromName(kindName.toStdString(), f.kind)) {
+        if (f.id <= 0 || !ms3d::features::featureKindFromName(kindName.toStdString(), f.kind)) {
             result.status = LoadStatus::InvalidContent;
             result.message = QStringLiteral("Invalid feature kind or id");
             return result;
@@ -284,15 +275,14 @@ LoadResult Document::loadFromJson(const QByteArray& bytes)
         const QJsonObject eo = item.toObject();
         ms3d::sketch::SketchEntity e;
         e.id = eo.value(QStringLiteral("id")).toInt(-1);
-        if (e.id <= 0
-            || !ms3d::sketch::entityKindFromName(
-                   eo.value(QStringLiteral("kind")).toString().toStdString(), e.kind)) {
+        if (e.id <= 0 || !ms3d::sketch::entityKindFromName(
+                             eo.value(QStringLiteral("kind")).toString().toStdString(), e.kind)) {
             result.status = LoadStatus::InvalidContent;
             result.message = QStringLiteral("Invalid sketch entity");
             return result;
         }
-        if (!vec2FromJson(eo.value(QStringLiteral("p0")).toObject(), e.p0)
-            || !vec2FromJson(eo.value(QStringLiteral("p1")).toObject(), e.p1)) {
+        if (!vec2FromJson(eo.value(QStringLiteral("p0")).toObject(), e.p0) ||
+            !vec2FromJson(eo.value(QStringLiteral("p1")).toObject(), e.p1)) {
             result.status = LoadStatus::InvalidContent;
             result.message = QStringLiteral("Sketch entity missing coordinates");
             return result;
@@ -308,9 +298,8 @@ LoadResult Document::loadFromJson(const QByteArray& bytes)
         const QJsonObject co = item.toObject();
         ms3d::sketch::SketchConstraint c;
         c.id = co.value(QStringLiteral("id")).toInt(-1);
-        if (c.id <= 0
-            || !ms3d::sketch::constraintKindFromName(
-                   co.value(QStringLiteral("kind")).toString().toStdString(), c.kind)) {
+        if (c.id <= 0 || !ms3d::sketch::constraintKindFromName(
+                             co.value(QStringLiteral("kind")).toString().toStdString(), c.kind)) {
             result.status = LoadStatus::InvalidContent;
             result.message = QStringLiteral("Invalid sketch constraint");
             return result;
@@ -326,9 +315,8 @@ LoadResult Document::loadFromJson(const QByteArray& bytes)
         const QJsonObject dout = item.toObject();
         ms3d::sketch::SketchDimension d;
         d.id = dout.value(QStringLiteral("id")).toInt(-1);
-        if (d.id <= 0
-            || !ms3d::sketch::dimensionKindFromName(
-                   dout.value(QStringLiteral("kind")).toString().toStdString(), d.kind)) {
+        if (d.id <= 0 || !ms3d::sketch::dimensionKindFromName(
+                             dout.value(QStringLiteral("kind")).toString().toStdString(), d.kind)) {
             result.status = LoadStatus::InvalidContent;
             result.message = QStringLiteral("Invalid sketch dimension");
             return result;
@@ -349,8 +337,7 @@ LoadResult Document::loadFromJson(const QByteArray& bytes)
     return result;
 }
 
-LoadResult Document::loadFromFile(const QString& path)
-{
+LoadResult Document::loadFromFile(const QString& path) {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         LoadResult result;
@@ -370,8 +357,7 @@ LoadResult Document::loadFromFile(const QString& path)
     return result;
 }
 
-SaveResult Document::saveToFile(const QString& path)
-{
+SaveResult Document::saveToFile(const QString& path) {
     SaveResult result;
     // Refuse writing over a different/incompatible existing MS3D file without loading it first
     // via Open — if target exists, probe schema and refuse newer/foreign formats.
@@ -387,16 +373,18 @@ SaveResult Document::saveToFile(const QString& path)
                 const QString format = root.value(QStringLiteral("format")).toString();
                 const int schema = root.value(QStringLiteral("schemaVersion")).toInt(-1);
                 if (!format.isEmpty() && format != QString::fromUtf8(kFormatId)) {
-                    result.message = QStringLiteral(
-                        "Refusing to overwrite a non-MS3DMaker file that declares format=")
-                                     + format;
+                    result.message =
+                        QStringLiteral(
+                            "Refusing to overwrite a non-MS3DMaker file that declares format=") +
+                        format;
                     return result;
                 }
                 if (schema > kSchemaVersion) {
-                    result.message = QStringLiteral(
-                        "Refusing to overwrite a newer schema document (file=%1 app=%2)")
-                                         .arg(schema)
-                                         .arg(kSchemaVersion);
+                    result.message =
+                        QStringLiteral(
+                            "Refusing to overwrite a newer schema document (file=%1 app=%2)")
+                            .arg(schema)
+                            .arg(kSchemaVersion);
                     return result;
                 }
             }
@@ -415,7 +403,8 @@ SaveResult Document::saveToFile(const QString& path)
 
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        result.message = statusMessage(LoadStatus::IoError) + QStringLiteral(": ") + file.errorString();
+        result.message =
+            statusMessage(LoadStatus::IoError) + QStringLiteral(": ") + file.errorString();
         return result;
     }
     if (file.write(json) != json.size()) {

@@ -9,31 +9,25 @@
 namespace ms3d::i18n {
 
 LanguageService::LanguageService(QObject* parent)
-    : QObject(parent)
-    , m_currentLocaleId(defaultLocaleId())
-{
+    : QObject(parent), m_currentLocaleId(defaultLocaleId()) {
 }
 
-QString LanguageService::settingsKey()
-{
+QString LanguageService::settingsKey() {
     return QStringLiteral("ui/language");
 }
 
-QString LanguageService::defaultLocaleId()
-{
+QString LanguageService::defaultLocaleId() {
     return QStringLiteral("en");
 }
 
-QList<LocaleInfo> LanguageService::supportedLocales()
-{
+QList<LocaleInfo> LanguageService::supportedLocales() {
     return {
         {QStringLiteral("en"), QStringLiteral("English")},
         {QStringLiteral("pt-BR"), QStringLiteral("Português (Brasil)")},
     };
 }
 
-bool LanguageService::isSupported(const QString& localeId)
-{
+bool LanguageService::isSupported(const QString& localeId) {
     for (const auto& info : supportedLocales()) {
         if (info.id == localeId) {
             return true;
@@ -42,13 +36,11 @@ bool LanguageService::isSupported(const QString& localeId)
     return false;
 }
 
-void LanguageService::setTranslationsDirectory(const QString& dir)
-{
+void LanguageService::setTranslationsDirectory(const QString& dir) {
     m_translationsDir = dir;
 }
 
-void LanguageService::clearTranslators()
-{
+void LanguageService::clearTranslators() {
     auto* app = QCoreApplication::instance();
     if (!app) {
         return;
@@ -63,8 +55,7 @@ void LanguageService::clearTranslators()
     }
 }
 
-bool LanguageService::installTranslatorFile(const QString& qmBaseName)
-{
+bool LanguageService::installTranslatorFile(const QString& qmBaseName) {
     auto translator = std::make_unique<QTranslator>();
     const QString path = QDir(m_translationsDir).filePath(qmBaseName + QStringLiteral(".qm"));
     if (!QFileInfo::exists(path)) {
@@ -78,8 +69,7 @@ bool LanguageService::installTranslatorFile(const QString& qmBaseName)
     return true;
 }
 
-QString LanguageService::applyLocale(const QString& localeId)
-{
+QString LanguageService::applyLocale(const QString& localeId) {
     QString requested = localeId;
     if (!isSupported(requested)) {
         requested = defaultLocaleId();
@@ -102,9 +92,8 @@ QString LanguageService::applyLocale(const QString& localeId)
     }
 
     // Optional Qt base translations (menus of standard dialogs, etc.)
-    const QString qtLocale = (requested == QStringLiteral("pt-BR"))
-                                 ? QStringLiteral("pt_BR")
-                                 : QStringLiteral("en");
+    const QString qtLocale =
+        (requested == QStringLiteral("pt-BR")) ? QStringLiteral("pt_BR") : QStringLiteral("en");
     auto qtTr = std::make_unique<QTranslator>();
     if (qtTr->load(QStringLiteral("qtbase_") + qtLocale,
                    QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
@@ -120,15 +109,13 @@ QString LanguageService::applyLocale(const QString& localeId)
     return m_currentLocaleId;
 }
 
-QString LanguageService::applySavedPreference()
-{
+QString LanguageService::applySavedPreference() {
     QSettings settings;
     const QString saved = settings.value(settingsKey(), defaultLocaleId()).toString();
     return applyLocale(saved);
 }
 
-void LanguageService::savePreference(const QString& localeId) const
-{
+void LanguageService::savePreference(const QString& localeId) const {
     QString id = localeId;
     if (!isSupported(id)) {
         id = defaultLocaleId();

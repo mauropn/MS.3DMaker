@@ -12,8 +12,7 @@
 
 namespace ms3d::drawing {
 
-const char* viewOrientationName(ViewOrientation orientation)
-{
+const char* viewOrientationName(ViewOrientation orientation) {
     switch (orientation) {
     case ViewOrientation::Front:
         return "Front";
@@ -27,8 +26,7 @@ const char* viewOrientationName(ViewOrientation orientation)
     return "Front";
 }
 
-gp_Dir viewDirection(ViewOrientation orientation)
-{
+gp_Dir viewDirection(ViewOrientation orientation) {
     switch (orientation) {
     case ViewOrientation::Top:
         return gp_Dir(0, 0, -1);
@@ -42,8 +40,7 @@ gp_Dir viewDirection(ViewOrientation orientation)
     }
 }
 
-DrawingViewResult makeHlrView(const TopoDS_Shape& shape, ViewOrientation orientation)
-{
+DrawingViewResult makeHlrView(const TopoDS_Shape& shape, ViewOrientation orientation) {
     DrawingViewResult result;
     result.orientation = orientation;
     if (shape.IsNull()) {
@@ -88,8 +85,8 @@ DrawingViewResult makeHlrView(const TopoDS_Shape& shape, ViewOrientation orienta
         result.ok = true;
         return result;
     } catch (const Standard_Failure& ex) {
-        result.error = ex.GetMessageString() ? ex.GetMessageString()
-                                             : "OCCT failure during HLR projection";
+        result.error =
+            ex.GetMessageString() ? ex.GetMessageString() : "OCCT failure during HLR projection";
         return result;
     } catch (...) {
         result.error = "Unknown exception during HLR projection";

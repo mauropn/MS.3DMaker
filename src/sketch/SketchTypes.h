@@ -26,10 +26,10 @@ struct SketchEntity {
 };
 
 enum class ConstraintKind {
-    Horizontal,   // line: endpoints share v
-    Vertical,     // line: endpoints share u
-    FixedLength,  // line length or circle radius
-    Coincident    // line endpoint to another line endpoint (e1 endpoint index in value: 0/1)
+    Horizontal,  // line: endpoints share v
+    Vertical,    // line: endpoints share u
+    FixedLength, // line length or circle radius
+    Coincident   // line endpoint to another line endpoint (e1 endpoint index in value: 0/1)
 };
 
 struct SketchConstraint {

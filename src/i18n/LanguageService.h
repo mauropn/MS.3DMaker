@@ -11,8 +11,8 @@ class QCoreApplication;
 namespace ms3d::i18n {
 
 struct LocaleInfo {
-    QString id;           // en, pt-BR
-    QString nativeName;   // English, Português (Brasil)
+    QString id;         // en, pt-BR
+    QString nativeName; // English, Português (Brasil)
 };
 
 class LanguageService : public QObject {

@@ -15,19 +15,17 @@ private slots:
     void loadMissingFields();
 };
 
-void TestDocument::newDocumentIsClean()
-{
+void TestDocument::newDocumentIsClean() {
     ms3d::document::Document doc;
     QVERIFY(!doc.isDirty());
     QCOMPARE(doc.title(), QStringLiteral("Untitled"));
     QVERIFY(doc.history().features().empty());
 }
 
-void TestDocument::roundTripJsonPreservesFeaturesAndSketch()
-{
+void TestDocument::roundTripJsonPreservesFeaturesAndSketch() {
     ms3d::document::Document doc;
-    doc.history().addPrimitive(ms3d::features::FeatureKind::Box, {{"dx", 10}, {"dy", 20}, {"dz", 30}},
-                               "Box");
+    doc.history().addPrimitive(ms3d::features::FeatureKind::Box,
+                               {{"dx", 10}, {"dy", 20}, {"dz", 30}}, "Box");
     doc.sketch().addLine({0, 0}, {10, 0});
     doc.sketch().addConstraint(ms3d::sketch::ConstraintKind::Horizontal,
                                doc.sketch().entities().front().id);
@@ -51,15 +49,13 @@ void TestDocument::roundTripJsonPreservesFeaturesAndSketch()
     QVERIFY(loaded.history().recompute().ok);
 }
 
-void TestDocument::rejectsCorruptJson()
-{
+void TestDocument::rejectsCorruptJson() {
     ms3d::document::Document doc;
     const auto result = doc.loadFromJson(QByteArrayLiteral("{not-json"));
     QCOMPARE(result.status, ms3d::document::LoadStatus::CorruptJson);
 }
 
-void TestDocument::rejectsWrongFormat()
-{
+void TestDocument::rejectsWrongFormat() {
     const QByteArray json = QByteArrayLiteral(
         R"({"format":"OtherCAD","schemaVersion":1,"title":"x","featureState":{"nextId":1,"nameSerial":1},"features":[],"sketch":{"plane":"XY","nextId":1,"entities":[],"constraints":[],"dimensions":[]}})");
     ms3d::document::Document doc;
@@ -67,8 +63,7 @@ void TestDocument::rejectsWrongFormat()
     QCOMPARE(result.status, ms3d::document::LoadStatus::WrongFormat);
 }
 
-void TestDocument::rejectsSchemaTooNew()
-{
+void TestDocument::rejectsSchemaTooNew() {
     const QByteArray json = QByteArrayLiteral(
         R"({"format":"MS3DMaker","schemaVersion":99,"title":"x","featureState":{"nextId":1,"nameSerial":1},"features":[],"sketch":{"plane":"XY","nextId":1,"entities":[],"constraints":[],"dimensions":[]}})");
     ms3d::document::Document doc;
@@ -76,8 +71,7 @@ void TestDocument::rejectsSchemaTooNew()
     QCOMPARE(result.status, ms3d::document::LoadStatus::SchemaTooNew);
 }
 
-void TestDocument::refusesOverwriteNewerSchemaFile()
-{
+void TestDocument::refusesOverwriteNewerSchemaFile() {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString path = dir.filePath(QStringLiteral("newer.ms3d"));
@@ -94,8 +88,7 @@ void TestDocument::refusesOverwriteNewerSchemaFile()
     QVERIFY(saved.message.contains(QStringLiteral("newer schema"), Qt::CaseInsensitive));
 }
 
-void TestDocument::loadMissingFields()
-{
+void TestDocument::loadMissingFields() {
     ms3d::document::Document doc;
     const auto result = doc.loadFromJson(QByteArrayLiteral(R"({"format":"MS3DMaker"})"));
     QCOMPARE(result.status, ms3d::document::LoadStatus::MissingFields);

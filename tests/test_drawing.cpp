@@ -12,19 +12,16 @@ private slots:
     void nullShapeFails();
 };
 
-void TestDrawing::frontHlrProducesEdges()
-{
+void TestDrawing::frontHlrProducesEdges() {
     const auto box = ms3d::geometry::makeBox(30, 20, 10);
     QVERIFY2(box.ok, box.error.c_str());
-    const auto view =
-        ms3d::drawing::makeHlrView(box.solid, ms3d::drawing::ViewOrientation::Front);
+    const auto view = ms3d::drawing::makeHlrView(box.solid, ms3d::drawing::ViewOrientation::Front);
     QVERIFY2(view.ok, view.error.c_str());
     TopoDS_Iterator it(view.edges);
     QVERIFY(it.More());
 }
 
-void TestDrawing::allOrientationsSucceed()
-{
+void TestDrawing::allOrientationsSucceed() {
     const auto box = ms3d::geometry::makeBox(15, 15, 15);
     QVERIFY(box.ok);
     const ms3d::drawing::ViewOrientation orientations[] = {
@@ -36,11 +33,9 @@ void TestDrawing::allOrientationsSucceed()
     }
 }
 
-void TestDrawing::nullShapeFails()
-{
+void TestDrawing::nullShapeFails() {
     TopoDS_Shape nullShape;
-    const auto view =
-        ms3d::drawing::makeHlrView(nullShape, ms3d::drawing::ViewOrientation::Front);
+    const auto view = ms3d::drawing::makeHlrView(nullShape, ms3d::drawing::ViewOrientation::Front);
     QVERIFY(!view.ok);
 }
 

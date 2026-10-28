@@ -2,8 +2,7 @@
 
 namespace ms3d::ai {
 
-const char* aiOpKindName(AiOpKind op)
-{
+const char* aiOpKindName(AiOpKind op) {
     switch (op) {
     case AiOpKind::MakeBox:
         return "MakeBox";
@@ -25,8 +24,7 @@ const char* aiOpKindName(AiOpKind op)
     return "MakeBox";
 }
 
-bool aiOpKindFromName(const std::string& name, AiOpKind& out)
-{
+bool aiOpKindFromName(const std::string& name, AiOpKind& out) {
     if (name == "MakeBox") {
         out = AiOpKind::MakeBox;
         return true;
@@ -62,8 +60,7 @@ bool aiOpKindFromName(const std::string& name, AiOpKind& out)
     return false;
 }
 
-ms3d::features::FeatureKind toFeatureKind(AiOpKind op)
-{
+ms3d::features::FeatureKind toFeatureKind(AiOpKind op) {
     switch (op) {
     case AiOpKind::MakeBox:
         return ms3d::features::FeatureKind::Box;
@@ -85,10 +82,9 @@ ms3d::features::FeatureKind toFeatureKind(AiOpKind op)
     return ms3d::features::FeatureKind::Box;
 }
 
-bool isBooleanOp(AiOpKind op)
-{
-    return op == AiOpKind::BooleanUnion || op == AiOpKind::BooleanCut
-           || op == AiOpKind::BooleanCommon;
+bool isBooleanOp(AiOpKind op) {
+    return op == AiOpKind::BooleanUnion || op == AiOpKind::BooleanCut ||
+           op == AiOpKind::BooleanCommon;
 }
 
 } // namespace ms3d::ai

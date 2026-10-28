@@ -5,8 +5,7 @@
 
 namespace ms3d::ai {
 
-AiValidationResult validatePlan(const AiPlan& plan)
-{
+AiValidationResult validatePlan(const AiPlan& plan) {
     AiValidationResult result;
     if (plan.steps.empty()) {
         result.ok = false;
@@ -32,7 +31,8 @@ AiValidationResult validatePlan(const AiPlan& plan)
         if (isBooleanOp(step.op)) {
             if (step.inputA <= 0 || step.inputB <= 0) {
                 result.ok = false;
-                result.issues.push_back({"boolean_inputs", "Boolean step requires inputA and inputB"});
+                result.issues.push_back(
+                    {"boolean_inputs", "Boolean step requires inputA and inputB"});
             } else if (seenIds.count(step.inputA) == 0 || seenIds.count(step.inputB) == 0) {
                 // inputs must appear earlier in the plan (seen already)
                 // If not in seenIds yet, forward reference
@@ -51,8 +51,8 @@ AiValidationResult validatePlan(const AiPlan& plan)
                         if (p.value <= 0.0) {
                             result.ok = false;
                             result.issues.push_back(
-                                {"non_positive_param", std::string("Parameter ") + key
-                                                           + " must be positive"});
+                                {"non_positive_param",
+                                 std::string("Parameter ") + key + " must be positive"});
                         }
                         return;
                     }

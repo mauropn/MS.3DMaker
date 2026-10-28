@@ -20,3 +20,4 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/). Versioning w
 - Phase 5.5 (Milestone 6): STEP import/export (AP214IS) via OCCT TKDESTEP; validity checks; round-trip test; File Import/Export STEP
 - Phase 5.6 (Milestone 7): Assemblies (component instances + transforms) and drawings (HLR Front/Top/Right/Iso) as separate session capabilities
 - Phase 5.7 (Milestone 8): AI Assist — constrained planner → validated AiPlan → confirm → FeatureHistory execute; ADR 0004; tx/ty/tz placement params
+- Phase 6: Community readiness — architecture/conventions/roadmap/release docs; clang-format + translation checks; GitHub Actions CI (Linux/Windows, no auto-publish)

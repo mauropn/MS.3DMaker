@@ -1,7 +1,7 @@
 #include "Sketch.h"
 
-#include <BRep_Builder.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRep_Builder.hxx>
 #include <Precision.hxx>
 #include <Standard_Failure.hxx>
 #include <TopoDS_Compound.hxx>
@@ -17,8 +17,7 @@
 namespace ms3d::sketch {
 namespace {
 
-gp_Ax2 planeAx2(PlaneId plane)
-{
+gp_Ax2 planeAx2(PlaneId plane) {
     switch (plane) {
     case PlaneId::XZ:
         return gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0), gp_Dir(1, 0, 0));
@@ -30,16 +29,14 @@ gp_Ax2 planeAx2(PlaneId plane)
     }
 }
 
-gp_Pnt to3d(PlaneId plane, const Vec2& uv)
-{
+gp_Pnt to3d(PlaneId plane, const Vec2& uv) {
     const gp_Ax2 ax = planeAx2(plane);
     const gp_Vec x(ax.XDirection());
     const gp_Vec y(ax.YDirection());
     return ax.Location().Translated(x * uv.u + y * uv.v);
 }
 
-bool addLineEdge(TopoDS_Compound& compound, PlaneId plane, const Vec2& a, const Vec2& b)
-{
+bool addLineEdge(TopoDS_Compound& compound, PlaneId plane, const Vec2& a, const Vec2& b) {
     if (std::hypot(a.u - b.u, a.v - b.v) < Precision::Confusion()) {
         return false;
     }
@@ -50,8 +47,7 @@ bool addLineEdge(TopoDS_Compound& compound, PlaneId plane, const Vec2& a, const 
 
 } // namespace
 
-const char* planeIdName(PlaneId id)
-{
+const char* planeIdName(PlaneId id) {
     switch (id) {
     case PlaneId::XY:
         return "XY";
@@ -63,8 +59,7 @@ const char* planeIdName(PlaneId id)
     return "XY";
 }
 
-bool planeIdFromName(const std::string& name, PlaneId& out)
-{
+bool planeIdFromName(const std::string& name, PlaneId& out) {
     if (name == "XY") {
         out = PlaneId::XY;
         return true;
@@ -80,8 +75,7 @@ bool planeIdFromName(const std::string& name, PlaneId& out)
     return false;
 }
 
-const char* entityKindName(EntityKind kind)
-{
+const char* entityKindName(EntityKind kind) {
     switch (kind) {
     case EntityKind::Line:
         return "Line";
@@ -93,8 +87,7 @@ const char* entityKindName(EntityKind kind)
     return "Line";
 }
 
-bool entityKindFromName(const std::string& name, EntityKind& out)
-{
+bool entityKindFromName(const std::string& name, EntityKind& out) {
     if (name == "Line") {
         out = EntityKind::Line;
         return true;
@@ -110,8 +103,7 @@ bool entityKindFromName(const std::string& name, EntityKind& out)
     return false;
 }
 
-const char* constraintKindName(ConstraintKind kind)
-{
+const char* constraintKindName(ConstraintKind kind) {
     switch (kind) {
     case ConstraintKind::Horizontal:
         return "Horizontal";
@@ -125,8 +117,7 @@ const char* constraintKindName(ConstraintKind kind)
     return "Horizontal";
 }
 
-bool constraintKindFromName(const std::string& name, ConstraintKind& out)
-{
+bool constraintKindFromName(const std::string& name, ConstraintKind& out) {
     if (name == "Horizontal") {
         out = ConstraintKind::Horizontal;
         return true;
@@ -146,8 +137,7 @@ bool constraintKindFromName(const std::string& name, ConstraintKind& out)
     return false;
 }
 
-const char* dimensionKindName(DimensionKind kind)
-{
+const char* dimensionKindName(DimensionKind kind) {
     switch (kind) {
     case DimensionKind::Length:
         return "Length";
@@ -157,8 +147,7 @@ const char* dimensionKindName(DimensionKind kind)
     return "Length";
 }
 
-bool dimensionKindFromName(const std::string& name, DimensionKind& out)
-{
+bool dimensionKindFromName(const std::string& name, DimensionKind& out) {
     if (name == "Length") {
         out = DimensionKind::Length;
         return true;
@@ -170,18 +159,14 @@ bool dimensionKindFromName(const std::string& name, DimensionKind& out)
     return false;
 }
 
-Sketch::Sketch(PlaneId plane)
-    : m_plane(plane)
-{
+Sketch::Sketch(PlaneId plane) : m_plane(plane) {
 }
 
-void Sketch::setPlane(PlaneId plane)
-{
+void Sketch::setPlane(PlaneId plane) {
     m_plane = plane;
 }
 
-void Sketch::clear()
-{
+void Sketch::clear() {
     m_entities.clear();
     m_constraints.clear();
     m_dimensions.clear();
@@ -190,8 +175,7 @@ void Sketch::clear()
 
 void Sketch::replaceContents(PlaneId plane, std::vector<SketchEntity> entities,
                              std::vector<SketchConstraint> constraints,
-                             std::vector<SketchDimension> dimensions, int nextId)
-{
+                             std::vector<SketchDimension> dimensions, int nextId) {
     m_plane = plane;
     m_entities = std::move(entities);
     m_constraints = std::move(constraints);
@@ -199,13 +183,11 @@ void Sketch::replaceContents(PlaneId plane, std::vector<SketchEntity> entities,
     m_nextId = nextId > 0 ? nextId : 1;
 }
 
-int Sketch::nextId()
-{
+int Sketch::nextId() {
     return m_nextId++;
 }
 
-SketchEntity* Sketch::mutableEntity(int id)
-{
+SketchEntity* Sketch::mutableEntity(int id) {
     for (auto& e : m_entities) {
         if (e.id == id) {
             return &e;
@@ -214,8 +196,7 @@ SketchEntity* Sketch::mutableEntity(int id)
     return nullptr;
 }
 
-const SketchEntity* Sketch::entityPtr(int id) const
-{
+const SketchEntity* Sketch::entityPtr(int id) const {
     for (const auto& e : m_entities) {
         if (e.id == id) {
             return &e;
@@ -224,21 +205,18 @@ const SketchEntity* Sketch::entityPtr(int id) const
     return nullptr;
 }
 
-std::optional<SketchEntity> Sketch::findEntity(int id) const
-{
+std::optional<SketchEntity> Sketch::findEntity(int id) const {
     if (const auto* e = entityPtr(id)) {
         return *e;
     }
     return std::nullopt;
 }
 
-double Sketch::lineLength(const SketchEntity& e)
-{
+double Sketch::lineLength(const SketchEntity& e) {
     return std::hypot(e.p1.u - e.p0.u, e.p1.v - e.p0.v);
 }
 
-int Sketch::addLine(const Vec2& a, const Vec2& b)
-{
+int Sketch::addLine(const Vec2& a, const Vec2& b) {
     SketchEntity e;
     e.id = nextId();
     e.kind = EntityKind::Line;
@@ -255,8 +233,7 @@ int Sketch::addLine(const Vec2& a, const Vec2& b)
     return e.id;
 }
 
-int Sketch::addCircle(const Vec2& center, double radius)
-{
+int Sketch::addCircle(const Vec2& center, double radius) {
     SketchEntity e;
     e.id = nextId();
     e.kind = EntityKind::Circle;
@@ -273,8 +250,7 @@ int Sketch::addCircle(const Vec2& center, double radius)
     return e.id;
 }
 
-int Sketch::addRectangle(const Vec2& corner, double width, double height)
-{
+int Sketch::addRectangle(const Vec2& corner, double width, double height) {
     SketchEntity e;
     e.id = nextId();
     e.kind = EntityKind::Rectangle;
@@ -292,8 +268,7 @@ int Sketch::addRectangle(const Vec2& corner, double width, double height)
     return e.id;
 }
 
-bool Sketch::removeEntity(int id)
-{
+bool Sketch::removeEntity(int id) {
     const auto it = std::remove_if(m_entities.begin(), m_entities.end(),
                                    [id](const SketchEntity& e) { return e.id == id; });
     if (it == m_entities.end()) {
@@ -311,8 +286,7 @@ bool Sketch::removeEntity(int id)
     return true;
 }
 
-int Sketch::addConstraint(ConstraintKind kind, int entityA, int entityB, double value)
-{
+int Sketch::addConstraint(ConstraintKind kind, int entityA, int entityB, double value) {
     SketchConstraint c;
     c.id = nextId();
     c.kind = kind;
@@ -323,8 +297,7 @@ int Sketch::addConstraint(ConstraintKind kind, int entityA, int entityB, double 
     return c.id;
 }
 
-int Sketch::addDimension(DimensionKind kind, int entityId, double value)
-{
+int Sketch::addDimension(DimensionKind kind, int entityId, double value) {
     SketchDimension d;
     d.id = nextId();
     d.kind = kind;
@@ -334,8 +307,7 @@ int Sketch::addDimension(DimensionKind kind, int entityId, double value)
     return d.id;
 }
 
-void Sketch::applyOne(const SketchConstraint& c)
-{
+void Sketch::applyOne(const SketchConstraint& c) {
     auto* a = mutableEntity(c.entityA);
     if (!a) {
         return;
@@ -394,15 +366,13 @@ void Sketch::applyOne(const SketchConstraint& c)
     }
 }
 
-void Sketch::applyConstraints()
-{
+void Sketch::applyConstraints() {
     for (const auto& c : m_constraints) {
         applyOne(c);
     }
 }
 
-ValidationResult Sketch::validate() const
-{
+ValidationResult Sketch::validate() const {
     ValidationResult result;
     for (const auto& e : m_entities) {
         if (e.kind == EntityKind::Line) {
@@ -416,9 +386,11 @@ ValidationResult Sketch::validate() const
                 result.issues.push_back({"invalid_radius", "Circle radius must be positive"});
             }
         } else if (e.kind == EntityKind::Rectangle) {
-            if (std::abs(e.w) <= Precision::Confusion() || std::abs(e.h) <= Precision::Confusion()) {
+            if (std::abs(e.w) <= Precision::Confusion() ||
+                std::abs(e.h) <= Precision::Confusion()) {
                 result.ok = false;
-                result.issues.push_back({"invalid_rectangle", "Rectangle width and height must be non-zero"});
+                result.issues.push_back(
+                    {"invalid_rectangle", "Rectangle width and height must be non-zero"});
             }
         }
     }
@@ -426,15 +398,17 @@ ValidationResult Sketch::validate() const
     for (const auto& c : m_constraints) {
         if (!entityPtr(c.entityA)) {
             result.ok = false;
-            result.issues.push_back({"dangling_constraint", "Constraint references missing entity A"});
+            result.issues.push_back(
+                {"dangling_constraint", "Constraint references missing entity A"});
             continue;
         }
         if ((c.kind == ConstraintKind::Coincident) && !entityPtr(c.entityB)) {
             result.ok = false;
-            result.issues.push_back({"dangling_constraint", "Constraint references missing entity B"});
+            result.issues.push_back(
+                {"dangling_constraint", "Constraint references missing entity B"});
         }
-        if (c.kind == ConstraintKind::Horizontal || c.kind == ConstraintKind::Vertical
-            || c.kind == ConstraintKind::FixedLength) {
+        if (c.kind == ConstraintKind::Horizontal || c.kind == ConstraintKind::Vertical ||
+            c.kind == ConstraintKind::FixedLength) {
             const auto* e = entityPtr(c.entityA);
             if (!e) {
                 continue;
@@ -442,25 +416,29 @@ ValidationResult Sketch::validate() const
             if (c.kind == ConstraintKind::Horizontal && e->kind == EntityKind::Line) {
                 if (std::abs(e->p0.v - e->p1.v) > 1e-6) {
                     result.ok = false;
-                    result.issues.push_back({"unsatisfied_horizontal", "Horizontal constraint not satisfied"});
+                    result.issues.push_back(
+                        {"unsatisfied_horizontal", "Horizontal constraint not satisfied"});
                 }
             }
             if (c.kind == ConstraintKind::Vertical && e->kind == EntityKind::Line) {
                 if (std::abs(e->p0.u - e->p1.u) > 1e-6) {
                     result.ok = false;
-                    result.issues.push_back({"unsatisfied_vertical", "Vertical constraint not satisfied"});
+                    result.issues.push_back(
+                        {"unsatisfied_vertical", "Vertical constraint not satisfied"});
                 }
             }
             if (c.kind == ConstraintKind::FixedLength && e->kind == EntityKind::Line) {
                 if (std::abs(lineLength(*e) - c.value) > 1e-4) {
                     result.ok = false;
-                    result.issues.push_back({"unsatisfied_length", "Fixed length constraint not satisfied"});
+                    result.issues.push_back(
+                        {"unsatisfied_length", "Fixed length constraint not satisfied"});
                 }
             }
             if (c.kind == ConstraintKind::FixedLength && e->kind == EntityKind::Circle) {
                 if (std::abs(e->r - c.value) > 1e-4) {
                     result.ok = false;
-                    result.issues.push_back({"unsatisfied_radius", "Fixed radius constraint not satisfied"});
+                    result.issues.push_back(
+                        {"unsatisfied_radius", "Fixed radius constraint not satisfied"});
                 }
             }
         }
@@ -480,8 +458,7 @@ ValidationResult Sketch::validate() const
     return result;
 }
 
-bool Sketch::buildDisplayCompound(TopoDS_Compound& out, std::string* errorOut) const
-{
+bool Sketch::buildDisplayCompound(TopoDS_Compound& out, std::string* errorOut) const {
     try {
         BRep_Builder builder;
         builder.MakeCompound(out);
@@ -514,7 +491,8 @@ bool Sketch::buildDisplayCompound(TopoDS_Compound& out, std::string* errorOut) c
         return true;
     } catch (const Standard_Failure& ex) {
         if (errorOut) {
-            *errorOut = ex.GetMessageString() ? ex.GetMessageString() : "Failed to build sketch compound";
+            *errorOut =
+                ex.GetMessageString() ? ex.GetMessageString() : "Failed to build sketch compound";
         }
         return false;
     } catch (...) {

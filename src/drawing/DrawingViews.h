@@ -9,10 +9,10 @@
 namespace ms3d::drawing {
 
 enum class ViewOrientation {
-    Front,  // looking along -Y (XY elevation)
-    Top,    // looking along -Z
-    Right,  // looking along -X
-    Iso     // isometric-ish direction
+    Front, // looking along -Y (XY elevation)
+    Top,   // looking along -Z
+    Right, // looking along -X
+    Iso    // isometric-ish direction
 };
 
 struct DrawingViewResult {

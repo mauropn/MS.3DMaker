@@ -9,21 +9,18 @@
 
 namespace ms3d::assembly {
 
-int Assembly::nextId()
-{
+int Assembly::nextId() {
     return m_nextId++;
 }
 
-void Assembly::clear()
-{
+void Assembly::clear() {
     m_instances.clear();
     m_nextId = 1;
     m_nameSerial = 1;
 }
 
 int Assembly::addInstance(const TopoDS_Shape& shape, const gp_Trsf& transform,
-                          const std::string& namePrefix)
-{
+                          const std::string& namePrefix) {
     if (shape.IsNull()) {
         return -1;
     }
@@ -38,8 +35,7 @@ int Assembly::addInstance(const TopoDS_Shape& shape, const gp_Trsf& transform,
     return inst.id;
 }
 
-bool Assembly::removeInstance(int id)
-{
+bool Assembly::removeInstance(int id) {
     const auto it = std::remove_if(m_instances.begin(), m_instances.end(),
                                    [id](const ComponentInstance& c) { return c.id == id; });
     if (it == m_instances.end()) {
@@ -49,8 +45,7 @@ bool Assembly::removeInstance(int id)
     return true;
 }
 
-AssemblyResult Assembly::buildCompound() const
-{
+AssemblyResult Assembly::buildCompound() const {
     AssemblyResult result;
     result.instanceCount = static_cast<int>(m_instances.size());
     if (m_instances.empty()) {
