@@ -10,6 +10,14 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 0 — Windows toolchain verified; Linux installer script available  
 - Phase 1 — REA MCP configured; git remote connected  
 - Phase 2 — Internationalization foundation (`en` + `pt-BR`)  
+- Phase 3 — Governance docs published; **application license Proposed** (see below)
+
+## Community
+
+- [GOVERNANCE.md](GOVERNANCE.md) — founder-led project  
+- [CONTRIBUTING.md](CONTRIBUTING.md) — how to contribute  
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) · [SECURITY.md](SECURITY.md) · [SUPPORT.md](SUPPORT.md)  
+- [CHANGELOG.md](CHANGELOG.md) · [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 ## Quick start (Windows)
 
@@ -38,4 +46,4 @@ Every user-facing string must use Qt `tr()` / `translate()`. See [translations/C
 
 ## License
 
-Application license not yet locked (ADR pending). Qt and OCCT are LGPL-family dependencies.
+Application license is **not locked yet**. Trade-offs and the recommended choice (**Apache-2.0**) are in [docs/decisions/0002-project-license.md](docs/decisions/0002-project-license.md). Qt and OCCT remain LGPL-family dependencies regardless of the application license — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
