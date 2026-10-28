@@ -31,7 +31,7 @@
 | Node / npm | 24.14.0 / 11.9.0 | — | For Phase 1 REA |
 | REA | `rea-agents@6.8.0` MCP in Cursor | — | Configured Phase 1; **restart Cursor** to load; see `phase1-rea-and-investigation.md` |
 | Node.js | **v24.22.1** | — | Required by REA (`^24.22.1`) |
-| GitHub remote | https://github.com/mauropn/MS.3DMaker.git | — | Exists; local folder not yet a git clone/link |
+| GitHub remote | https://github.com/mauropn/MS.3DMaker.git | — | Local `main` tracking `origin/main`; initial push done |
 
 ### Path notes
 

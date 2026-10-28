@@ -1,7 +1,7 @@
 # Phase 1 — REA setup and authorized investigation
 
-**Status:** REA registered for Cursor (pending agent restart to load MCP)  
-**Remote repo (existing):** https://github.com/mauropn/MS.3DMaker.git  
+**Status:** REA MCP verified in Cursor (`user-rea`, ready); local git linked and pushed  
+**Remote repo:** https://github.com/mauropn/MS.3DMaker.git  
 **Date:** 2026-10-28
 
 ## 1. What was configured
@@ -22,9 +22,13 @@ MCP command registered (conceptually):
 cmd.exe /d /c npx -y rea-agents@6.8.0 mcp
 ```
 
-## 2. Restart required
+## 2. MCP verification (completed)
 
-After REA setup, **restart Cursor** (fully quit and reopen) so the agent session reloads MCP servers. Then ask the agent to list available REA/MCP tools to confirm discovery.
+- Namespace: `user-rea`
+- Status: `ready`
+- Tool catalog discoverable (200+ tools, e.g. `binary_overview`, `analyze_function`, `open_binary`, …)
+- Live call check: `binary_overview` responded correctly with `target_unavailable` (no app open yet) — proves MCP connectivity
+- Optional analysis engines (Ghidra/IDA/JADX/Hopper): still not installed (acceptable for now)
 
 ## 3. Authorized investigation policy (MS3DMaker)
 
