@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "FeatureEditDialog.h"
 #include "PreferencesDialog.h"
+#include "io/StepIO.h"
 #include "viewport/OcctView.h"
 
 #include <QAbstractItemView>
@@ -82,6 +83,16 @@ void MainWindow::buildUi()
     m_saveAsAction = new QAction(this);
     connect(m_saveAsAction, &QAction::triggered, this, &MainWindow::fileSaveAs);
     m_fileMenu->addAction(m_saveAsAction);
+
+    m_fileMenu->addSeparator();
+
+    m_importStepAction = new QAction(this);
+    connect(m_importStepAction, &QAction::triggered, this, &MainWindow::fileImportStep);
+    m_fileMenu->addAction(m_importStepAction);
+
+    m_exportStepAction = new QAction(this);
+    connect(m_exportStepAction, &QAction::triggered, this, &MainWindow::fileExportStep);
+    m_fileMenu->addAction(m_exportStepAction);
 
     m_fileMenu->addSeparator();
 
@@ -206,6 +217,8 @@ void MainWindow::retranslateUi()
     m_openAction->setText(tr("Open…"));
     m_saveAction->setText(tr("Save"));
     m_saveAsAction->setText(tr("Save As…"));
+    m_importStepAction->setText(tr("Import STEP…"));
+    m_exportStepAction->setText(tr("Export STEP…"));
     m_createBoxAction->setText(tr("Box"));
     m_createCylinderAction->setText(tr("Cylinder"));
     m_createSphereAction->setText(tr("Sphere"));
@@ -382,6 +395,76 @@ void MainWindow::fileSaveAs()
     }
     updateWindowTitle();
     statusBar()->showMessage(tr("Saved %1").arg(m_document.filePath()), 4000);
+}
+
+TopoDS_Shape MainWindow::shapeForStepExport() const
+{
+    const auto tip = m_document.history().tip();
+    if (tip && tip->valid && !tip->result.IsNull()) {
+        return tip->result;
+    }
+    return m_importedShape;
+}
+
+void MainWindow::fileImportStep()
+{
+    const QString path = QFileDialog::getOpenFileName(
+        this, tr("Import STEP"), QString(),
+        tr("STEP files (*.step *.stp);;All files (*.*)"));
+    if (path.isEmpty() || !m_view) {
+        return;
+    }
+
+    const auto imported = ms3d::io::importStep(path.toStdString());
+    if (!imported.ok) {
+        QMessageBox::critical(this, tr("STEP import failed"),
+                              QString::fromStdString(imported.error));
+        return;
+    }
+
+    m_importedShape = imported.shape;
+    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
+    QString error;
+    if (!m_view->displaySolid(m_importedShape, &error)) {
+        QMessageBox::critical(this, tr("STEP import failed"), error);
+        return;
+    }
+    statusBar()->showMessage(
+        tr("Imported STEP (%1 root(s)): %2")
+            .arg(imported.transferredRoots)
+            .arg(path),
+        5000);
+}
+
+void MainWindow::fileExportStep()
+{
+    const TopoDS_Shape shape = shapeForStepExport();
+    if (shape.IsNull()) {
+        QMessageBox::warning(this, tr("STEP export"),
+                             tr("Nothing to export. Create a feature or import a STEP file first."));
+        return;
+    }
+
+    const QString path = QFileDialog::getSaveFileName(
+        this, tr("Export STEP"), m_document.title() + QStringLiteral(".step"),
+        tr("STEP files (*.step *.stp)"));
+    if (path.isEmpty()) {
+        return;
+    }
+    QString finalPath = path;
+    if (!finalPath.endsWith(QStringLiteral(".step"), Qt::CaseInsensitive)
+        && !finalPath.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
+        finalPath += QStringLiteral(".step");
+    }
+
+    const auto exported =
+        ms3d::io::exportStep(shape, finalPath.toStdString(), ms3d::io::StepSchema::AP214);
+    if (!exported.ok) {
+        QMessageBox::critical(this, tr("STEP export failed"),
+                              QString::fromStdString(exported.error));
+        return;
+    }
+    statusBar()->showMessage(tr("Exported STEP (AP214): %1").arg(finalPath), 5000);
 }
 
 void MainWindow::openPreferences()

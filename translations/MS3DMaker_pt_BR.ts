@@ -28,6 +28,54 @@
         <translation>Salvar como…</translation>
     </message>
     <message>
+        <source>Import STEP…</source>
+        <translation>Importar STEP…</translation>
+    </message>
+    <message>
+        <source>Export STEP…</source>
+        <translation>Exportar STEP…</translation>
+    </message>
+    <message>
+        <source>Import STEP</source>
+        <translation>Importar STEP</translation>
+    </message>
+    <message>
+        <source>STEP files (*.step *.stp);;All files (*.*)</source>
+        <translation>Arquivos STEP (*.step *.stp);;Todos os arquivos (*.*)</translation>
+    </message>
+    <message>
+        <source>STEP import failed</source>
+        <translation>Falha na importação STEP</translation>
+    </message>
+    <message>
+        <source>Imported STEP (%1 root(s)): %2</source>
+        <translation>STEP importado (%1 raiz(es)): %2</translation>
+    </message>
+    <message>
+        <source>STEP export</source>
+        <translation>Exportação STEP</translation>
+    </message>
+    <message>
+        <source>Nothing to export. Create a feature or import a STEP file first.</source>
+        <translation>Nada para exportar. Crie um recurso ou importe um STEP primeiro.</translation>
+    </message>
+    <message>
+        <source>Export STEP</source>
+        <translation>Exportar STEP</translation>
+    </message>
+    <message>
+        <source>STEP files (*.step *.stp)</source>
+        <translation>Arquivos STEP (*.step *.stp)</translation>
+    </message>
+    <message>
+        <source>STEP export failed</source>
+        <translation>Falha na exportação STEP</translation>
+    </message>
+    <message>
+        <source>Exported STEP (AP214): %1</source>
+        <translation>STEP exportado (AP214): %1</translation>
+    </message>
+    <message>
         <source>%1 — MS3DMaker</source>
         <translation>%1 — MS3DMaker</translation>
     </message>

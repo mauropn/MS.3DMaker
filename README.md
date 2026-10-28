@@ -15,7 +15,8 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 5.1 — Basic geometry: primitives, extrude/revolve, booleans (see [docs/development/phase5-m2-geometry.md](docs/development/phase5-m2-geometry.md))  
 - Phase 5.2 — Sketcher: planes, line/circle/rectangle, constraints, validation (see [docs/development/phase5-m3-sketcher.md](docs/development/phase5-m3-sketcher.md))  
 - Phase 5.3 — Feature history: params, deps, recompute, edit (see [docs/development/phase5-m4-feature-history.md](docs/development/phase5-m4-feature-history.md))  
-- Phase 5.4 — Documents: `.ms3d` New/Open/Save/Save As with schema versioning (see [docs/development/phase5-m5-documents.md](docs/development/phase5-m5-documents.md))
+- Phase 5.4 — Documents: `.ms3d` New/Open/Save/Save As with schema versioning (see [docs/development/phase5-m5-documents.md](docs/development/phase5-m5-documents.md))  
+- Phase 5.5 — STEP interchange (see [docs/development/phase5-m6-step.md](docs/development/phase5-m6-step.md))
 
 ## Community
 

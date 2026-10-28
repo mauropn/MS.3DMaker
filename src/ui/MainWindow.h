@@ -23,6 +23,8 @@ public slots:
     void fileOpen();
     void fileSave();
     void fileSaveAs();
+    void fileImportStep();
+    void fileExportStep();
     void createDemoBox();
     void createDemoCylinder();
     void createDemoSphere();
@@ -80,6 +82,8 @@ private:
     QAction* m_openAction = nullptr;
     QAction* m_saveAction = nullptr;
     QAction* m_saveAsAction = nullptr;
+    QAction* m_importStepAction = nullptr;
+    QAction* m_exportStepAction = nullptr;
     QAction* m_preferencesAction = nullptr;
     QAction* m_quitAction = nullptr;
     QAction* m_aboutAction = nullptr;
@@ -107,7 +111,10 @@ private:
     QAction* m_clearHistoryAction = nullptr;
     QListWidget* m_featureList = nullptr;
     ms3d::viewport::OcctView* m_view = nullptr;
+    TopoDS_Shape shapeForStepExport() const;
+
     ms3d::document::Document m_document;
+    TopoDS_Shape m_importedShape;
     int m_selectedEntityId = -1;
     bool m_demoBoxLoaded = false;
 };

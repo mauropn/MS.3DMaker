@@ -48,6 +48,8 @@ set(MS3D_SOURCES
   src/geometry/SolidFactory.h
   src/i18n/LanguageService.cpp
   src/i18n/LanguageService.h
+  src/io/StepIO.cpp
+  src/io/StepIO.h
   src/sketch/Sketch.cpp
   src/sketch/Sketch.h
   src/sketch/SketchTypes.h
@@ -71,6 +73,7 @@ target_link_libraries(MS3DMaker PRIVATE
   TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
   TKBO TKBool TKShHealing
   TKService TKV3d TKOpenGl
+  TKXSBase TKDE TKDESTEP
 )
 if(WIN32)
   target_link_libraries(MS3DMaker PRIVATE user32 gdi32 opengl32)
@@ -107,6 +110,8 @@ if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
   set(_ms3d_occt_runtime_dlls
     TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
     TKService TKV3d TKOpenGl TKMesh TKShHealing TKBO TKBool TKHLR
+    TKXSBase TKDE TKDESTEP TKLCAF TKVCAF TKCDF TKCAF TKBinL TKBin TKXmlL TKXml
+    TKStdL TKStd TKRWMesh TKService
   )
   foreach(_lib IN LISTS _ms3d_occt_runtime_dlls)
     if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
@@ -264,6 +269,39 @@ if(MS3D_BUILD_TESTS)
     endforeach()
   endif()
   add_test(NAME document COMMAND test_document)
+
+  add_executable(test_step
+    tests/test_step.cpp
+    src/io/StepIO.cpp
+    src/io/StepIO.h
+    src/geometry/SolidFactory.cpp
+    src/geometry/SolidFactory.h
+  )
+  target_include_directories(test_step PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_step PRIVATE
+    Qt6::Test
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing
+    TKXSBase TKDE TKDESTEP
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+                 TKBO TKBool TKShHealing TKXSBase TKDE TKDESTEP TKLCAF TKVCAF TKCDF TKCAF
+                 TKBinL TKBin TKXmlL TKXml TKStdL TKStd TKRWMesh TKMesh TKService)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_step POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_step>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME step COMMAND test_step)
 endif()
 
 install(TARGETS MS3DMaker RUNTIME DESTINATION bin)

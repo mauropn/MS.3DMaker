@@ -17,3 +17,4 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/). Versioning w
 - Phase 5.2 (Milestone 3): Sketcher — plane selection, line/circle/rectangle tools, entity selection, dimensions, basic H/V/length constraints, validation; ADR 0003 (lightweight solver strategy)
 - Phase 5.3 (Milestone 4): Feature history — definitions, parameters, dependency graph, invalidate/recompute, edit prior features, history dock + error handling
 - Phase 5.4 (Milestone 5): Document management — `.ms3d` JSON save/load, schema v1, corruption checks, refuse incompatible overwrite; File New/Open/Save/Save As
+- Phase 5.5 (Milestone 6): STEP import/export (AP214IS) via OCCT TKDESTEP; validity checks; round-trip test; File Import/Export STEP
