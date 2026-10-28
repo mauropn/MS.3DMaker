@@ -39,6 +39,8 @@ find_package(OpenCASCADE REQUIRED)
 
 set(MS3D_SOURCES
   src/app/main.cpp
+  src/document/Document.cpp
+  src/document/Document.h
   src/features/FeatureHistory.cpp
   src/features/FeatureHistory.h
   src/features/FeatureTypes.h
@@ -226,6 +228,42 @@ if(MS3D_BUILD_TESTS)
     endforeach()
   endif()
   add_test(NAME feature_history COMMAND test_feature_history)
+
+  add_executable(test_document
+    tests/test_document.cpp
+    src/document/Document.cpp
+    src/document/Document.h
+    src/features/FeatureHistory.cpp
+    src/features/FeatureHistory.h
+    src/features/FeatureTypes.h
+    src/geometry/SolidFactory.cpp
+    src/geometry/SolidFactory.h
+    src/sketch/Sketch.cpp
+    src/sketch/Sketch.h
+    src/sketch/SketchTypes.h
+  )
+  target_include_directories(test_document PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_document PRIVATE
+    Qt6::Test Qt6::Core
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKShHealing)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_document POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_document>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME document COMMAND test_document)
 endif()
 
 install(TARGETS MS3DMaker RUNTIME DESTINATION bin)

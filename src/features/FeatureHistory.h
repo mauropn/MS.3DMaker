@@ -37,6 +37,12 @@ public:
     bool hasCycle() const;
     void clear();
 
+    /// Replace contents from a document snapshot (results cleared; features marked dirty).
+    void replaceContents(std::vector<Feature> features, int nextId, int nameSerial);
+
+    int peekNextId() const { return m_nextId; }
+    int peekNameSerial() const { return m_nameSerial; }
+
 private:
     int nextId();
     static bool isBooleanKind(FeatureKind kind);

@@ -30,6 +30,43 @@ const char* featureKindName(FeatureKind kind)
     return "Feature";
 }
 
+bool featureKindFromName(const std::string& name, FeatureKind& out)
+{
+    if (name == "Box") {
+        out = FeatureKind::Box;
+        return true;
+    }
+    if (name == "Cylinder") {
+        out = FeatureKind::Cylinder;
+        return true;
+    }
+    if (name == "Sphere") {
+        out = FeatureKind::Sphere;
+        return true;
+    }
+    if (name == "Extrusion") {
+        out = FeatureKind::Extrusion;
+        return true;
+    }
+    if (name == "Revolution") {
+        out = FeatureKind::Revolution;
+        return true;
+    }
+    if (name == "BooleanUnion") {
+        out = FeatureKind::BooleanUnion;
+        return true;
+    }
+    if (name == "BooleanCut") {
+        out = FeatureKind::BooleanCut;
+        return true;
+    }
+    if (name == "BooleanCommon") {
+        out = FeatureKind::BooleanCommon;
+        return true;
+    }
+    return false;
+}
+
 bool FeatureHistory::isBooleanKind(FeatureKind kind)
 {
     return kind == FeatureKind::BooleanUnion || kind == FeatureKind::BooleanCut
@@ -46,6 +83,19 @@ void FeatureHistory::clear()
     m_features.clear();
     m_nextId = 1;
     m_nameSerial = 1;
+}
+
+void FeatureHistory::replaceContents(std::vector<Feature> features, int nextId, int nameSerial)
+{
+    m_features = std::move(features);
+    for (auto& f : m_features) {
+        f.dirty = true;
+        f.valid = false;
+        f.error.clear();
+        f.result = TopoDS_Solid();
+    }
+    m_nextId = nextId > 0 ? nextId : 1;
+    m_nameSerial = nameSerial > 0 ? nameSerial : 1;
 }
 
 const Feature* FeatureHistory::featurePtr(int id) const

@@ -41,6 +41,12 @@ public:
 
     void clear();
 
+    void replaceContents(PlaneId plane, std::vector<SketchEntity> entities,
+                         std::vector<SketchConstraint> constraints,
+                         std::vector<SketchDimension> dimensions, int nextId);
+
+    int peekNextId() const { return m_nextId; }
+
 private:
     int nextId();
     SketchEntity* mutableEntity(int id);
@@ -56,5 +62,15 @@ private:
 };
 
 const char* planeIdName(PlaneId id);
+bool planeIdFromName(const std::string& name, PlaneId& out);
+
+const char* entityKindName(EntityKind kind);
+bool entityKindFromName(const std::string& name, EntityKind& out);
+
+const char* constraintKindName(ConstraintKind kind);
+bool constraintKindFromName(const std::string& name, ConstraintKind& out);
+
+const char* dimensionKindName(DimensionKind kind);
+bool dimensionKindFromName(const std::string& name, DimensionKind& out);
 
 } // namespace ms3d::sketch

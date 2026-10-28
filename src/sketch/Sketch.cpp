@@ -63,6 +63,113 @@ const char* planeIdName(PlaneId id)
     return "XY";
 }
 
+bool planeIdFromName(const std::string& name, PlaneId& out)
+{
+    if (name == "XY") {
+        out = PlaneId::XY;
+        return true;
+    }
+    if (name == "XZ") {
+        out = PlaneId::XZ;
+        return true;
+    }
+    if (name == "YZ") {
+        out = PlaneId::YZ;
+        return true;
+    }
+    return false;
+}
+
+const char* entityKindName(EntityKind kind)
+{
+    switch (kind) {
+    case EntityKind::Line:
+        return "Line";
+    case EntityKind::Circle:
+        return "Circle";
+    case EntityKind::Rectangle:
+        return "Rectangle";
+    }
+    return "Line";
+}
+
+bool entityKindFromName(const std::string& name, EntityKind& out)
+{
+    if (name == "Line") {
+        out = EntityKind::Line;
+        return true;
+    }
+    if (name == "Circle") {
+        out = EntityKind::Circle;
+        return true;
+    }
+    if (name == "Rectangle") {
+        out = EntityKind::Rectangle;
+        return true;
+    }
+    return false;
+}
+
+const char* constraintKindName(ConstraintKind kind)
+{
+    switch (kind) {
+    case ConstraintKind::Horizontal:
+        return "Horizontal";
+    case ConstraintKind::Vertical:
+        return "Vertical";
+    case ConstraintKind::FixedLength:
+        return "FixedLength";
+    case ConstraintKind::Coincident:
+        return "Coincident";
+    }
+    return "Horizontal";
+}
+
+bool constraintKindFromName(const std::string& name, ConstraintKind& out)
+{
+    if (name == "Horizontal") {
+        out = ConstraintKind::Horizontal;
+        return true;
+    }
+    if (name == "Vertical") {
+        out = ConstraintKind::Vertical;
+        return true;
+    }
+    if (name == "FixedLength") {
+        out = ConstraintKind::FixedLength;
+        return true;
+    }
+    if (name == "Coincident") {
+        out = ConstraintKind::Coincident;
+        return true;
+    }
+    return false;
+}
+
+const char* dimensionKindName(DimensionKind kind)
+{
+    switch (kind) {
+    case DimensionKind::Length:
+        return "Length";
+    case DimensionKind::Radius:
+        return "Radius";
+    }
+    return "Length";
+}
+
+bool dimensionKindFromName(const std::string& name, DimensionKind& out)
+{
+    if (name == "Length") {
+        out = DimensionKind::Length;
+        return true;
+    }
+    if (name == "Radius") {
+        out = DimensionKind::Radius;
+        return true;
+    }
+    return false;
+}
+
 Sketch::Sketch(PlaneId plane)
     : m_plane(plane)
 {
@@ -78,6 +185,18 @@ void Sketch::clear()
     m_entities.clear();
     m_constraints.clear();
     m_dimensions.clear();
+    m_nextId = 1;
+}
+
+void Sketch::replaceContents(PlaneId plane, std::vector<SketchEntity> entities,
+                             std::vector<SketchConstraint> constraints,
+                             std::vector<SketchDimension> dimensions, int nextId)
+{
+    m_plane = plane;
+    m_entities = std::move(entities);
+    m_constraints = std::move(constraints);
+    m_dimensions = std::move(dimensions);
+    m_nextId = nextId > 0 ? nextId : 1;
 }
 
 int Sketch::nextId()

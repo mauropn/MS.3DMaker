@@ -43,5 +43,6 @@ struct RecomputeReport {
 };
 
 const char* featureKindName(FeatureKind kind);
+bool featureKindFromName(const std::string& name, FeatureKind& out);
 
 } // namespace ms3d::features

@@ -5,8 +5,10 @@
 
 #include <QAbstractItemView>
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDockWidget>
 #include <QEvent>
+#include <QFileDialog>
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMenu>
@@ -14,7 +16,6 @@
 #include <QMessageBox>
 #include <QShowEvent>
 #include <QStatusBar>
-#include <QVariant>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -22,10 +23,11 @@ namespace ms3d::ui {
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , m_sketch(std::make_unique<ms3d::sketch::Sketch>(ms3d::sketch::PlaneId::XY))
 {
     buildUi();
     retranslateUi();
+    bindDocumentToView();
+    updateWindowTitle();
 }
 
 void MainWindow::buildUi()
@@ -38,10 +40,13 @@ void MainWindow::buildUi()
     setCentralWidget(central);
     resize(1100, 700);
 
-    m_view->setSketch(m_sketch.get());
     connect(m_view, &ms3d::viewport::OcctView::statusMessage, this, &MainWindow::onSketchStatus);
     connect(m_view, &ms3d::viewport::OcctView::sketchSelectionChanged, this,
             &MainWindow::onSketchSelection);
+    connect(m_view, &ms3d::viewport::OcctView::sketchChanged, this, [this]() {
+        m_document.markDirty();
+        updateWindowTitle();
+    });
 
     auto* dock = new QDockWidget(this);
     dock->setObjectName(QStringLiteral("FeatureHistoryDock"));
@@ -54,10 +59,6 @@ void MainWindow::buildUi()
             [this](QListWidgetItem*) { editSelectedFeature(); });
     dock->setWidget(m_featureList);
     addDockWidget(Qt::LeftDockWidgetArea, dock);
-    m_featureList->setParent(dock);
-    // Keep dock title via retranslate — store as property
-    dock->setWindowTitle(tr("Feature History"));
-    m_featureList->setProperty("historyDock", QVariant::fromValue(static_cast<QWidget*>(dock)));
 
     m_fileMenu = menuBar()->addMenu(QString());
     m_createMenu = menuBar()->addMenu(QString());
@@ -65,6 +66,28 @@ void MainWindow::buildUi()
     m_editMenu = menuBar()->addMenu(QString());
     m_viewMenu = menuBar()->addMenu(QString());
     m_helpMenu = menuBar()->addMenu(QString());
+
+    m_newAction = new QAction(this);
+    connect(m_newAction, &QAction::triggered, this, &MainWindow::fileNew);
+    m_fileMenu->addAction(m_newAction);
+
+    m_openAction = new QAction(this);
+    connect(m_openAction, &QAction::triggered, this, &MainWindow::fileOpen);
+    m_fileMenu->addAction(m_openAction);
+
+    m_saveAction = new QAction(this);
+    connect(m_saveAction, &QAction::triggered, this, &MainWindow::fileSave);
+    m_fileMenu->addAction(m_saveAction);
+
+    m_saveAsAction = new QAction(this);
+    connect(m_saveAsAction, &QAction::triggered, this, &MainWindow::fileSaveAs);
+    m_fileMenu->addAction(m_saveAsAction);
+
+    m_fileMenu->addSeparator();
+
+    m_quitAction = new QAction(this);
+    connect(m_quitAction, &QAction::triggered, this, &QWidget::close);
+    m_fileMenu->addAction(m_quitAction);
 
     m_createBoxAction = new QAction(this);
     connect(m_createBoxAction, &QAction::triggered, this, &MainWindow::createDemoBox);
@@ -162,10 +185,6 @@ void MainWindow::buildUi()
     m_editMenu->addSeparator();
     m_editMenu->addAction(m_preferencesAction);
 
-    m_quitAction = new QAction(this);
-    connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
-    m_fileMenu->addAction(m_quitAction);
-
     m_fitAllAction = new QAction(this);
     connect(m_fitAllAction, &QAction::triggered, this, &MainWindow::fitAllView);
     m_viewMenu->addAction(m_fitAllAction);
@@ -177,13 +196,16 @@ void MainWindow::buildUi()
 
 void MainWindow::retranslateUi()
 {
-    setWindowTitle(tr("MS3DMaker"));
     m_fileMenu->setTitle(tr("File"));
     m_createMenu->setTitle(tr("Create"));
     m_sketchMenu->setTitle(tr("Sketch"));
     m_editMenu->setTitle(tr("Edit"));
     m_viewMenu->setTitle(tr("View"));
     m_helpMenu->setTitle(tr("Help"));
+    m_newAction->setText(tr("New"));
+    m_openAction->setText(tr("Open…"));
+    m_saveAction->setText(tr("Save"));
+    m_saveAsAction->setText(tr("Save As…"));
     m_createBoxAction->setText(tr("Box"));
     m_createCylinderAction->setText(tr("Cylinder"));
     m_createSphereAction->setText(tr("Sphere"));
@@ -215,6 +237,25 @@ void MainWindow::retranslateUi()
     statusBar()->showMessage(
         tr("Orbit: Shift+LMB drag · Pan: MMB or Alt+LMB · Zoom: wheel / RMB drag · Select: LMB"));
     refreshFeatureList();
+    updateWindowTitle();
+}
+
+void MainWindow::updateWindowTitle()
+{
+    QString title = m_document.title();
+    if (m_document.isDirty()) {
+        title += QLatin1Char('*');
+    }
+    setWindowTitle(tr("%1 — MS3DMaker").arg(title));
+}
+
+void MainWindow::bindDocumentToView()
+{
+    if (!m_view) {
+        return;
+    }
+    m_view->setSketch(&m_document.sketch());
+    m_view->refreshSketchDisplay();
 }
 
 void MainWindow::changeEvent(QEvent* event)
@@ -234,6 +275,115 @@ void MainWindow::showEvent(QShowEvent* event)
     }
 }
 
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    if (maybeSave()) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+bool MainWindow::maybeSave()
+{
+    if (!m_document.isDirty()) {
+        return true;
+    }
+    const auto response = QMessageBox::question(
+        this, tr("Unsaved changes"),
+        tr("The document has unsaved changes. Save before continuing?"),
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
+    if (response == QMessageBox::Cancel) {
+        return false;
+    }
+    if (response == QMessageBox::Discard) {
+        return true;
+    }
+    fileSave();
+    return !m_document.isDirty();
+}
+
+void MainWindow::fileNew()
+{
+    if (!maybeSave()) {
+        return;
+    }
+    m_document.newDocument();
+    m_selectedEntityId = -1;
+    bindDocumentToView();
+    if (m_view) {
+        m_view->clearSolidDisplay();
+        m_view->setSketchTool(ms3d::viewport::SketchTool::None);
+    }
+    refreshFeatureList();
+    updateWindowTitle();
+    statusBar()->showMessage(tr("New document"), 3000);
+}
+
+void MainWindow::fileOpen()
+{
+    if (!maybeSave()) {
+        return;
+    }
+    const QString path = QFileDialog::getOpenFileName(
+        this, tr("Open Document"), QString(),
+        tr("MS3DMaker documents (*.%1);;All files (*.*)")
+            .arg(QString::fromUtf8(ms3d::document::kFileExtension)));
+    if (path.isEmpty()) {
+        return;
+    }
+    const auto loaded = m_document.loadFromFile(path);
+    if (loaded.status != ms3d::document::LoadStatus::Ok) {
+        QMessageBox::critical(this, tr("Open failed"),
+                              tr("%1\n%2")
+                                  .arg(ms3d::document::Document::statusMessage(loaded.status),
+                                       loaded.message));
+        return;
+    }
+    m_selectedEntityId = -1;
+    bindDocumentToView();
+    recomputeAndShow(tr("Opened %1").arg(m_document.title()));
+    updateWindowTitle();
+}
+
+void MainWindow::fileSave()
+{
+    if (m_document.filePath().isEmpty()) {
+        fileSaveAs();
+        return;
+    }
+    const auto saved = m_document.saveToFile(m_document.filePath());
+    if (!saved.ok) {
+        QMessageBox::critical(this, tr("Save failed"), saved.message);
+        return;
+    }
+    updateWindowTitle();
+    statusBar()->showMessage(tr("Saved %1").arg(m_document.filePath()), 4000);
+}
+
+void MainWindow::fileSaveAs()
+{
+    const QString path = QFileDialog::getSaveFileName(
+        this, tr("Save Document As"), m_document.title() + QStringLiteral(".ms3d"),
+        tr("MS3DMaker documents (*.%1)")
+            .arg(QString::fromUtf8(ms3d::document::kFileExtension)));
+    if (path.isEmpty()) {
+        return;
+    }
+    QString finalPath = path;
+    if (!finalPath.endsWith(QStringLiteral(".ms3d"), Qt::CaseInsensitive)) {
+        finalPath += QStringLiteral(".ms3d");
+    }
+    const auto saved = m_document.saveToFile(finalPath);
+    if (!saved.ok) {
+        QMessageBox::critical(this, tr("Save failed"), saved.message);
+        // Never leave a partially applied incompatible overwrite: Document refuses write.
+        return;
+    }
+    updateWindowTitle();
+    statusBar()->showMessage(tr("Saved %1").arg(m_document.filePath()), 4000);
+}
+
 void MainWindow::openPreferences()
 {
     PreferencesDialog dialog(this);
@@ -243,22 +393,8 @@ void MainWindow::openPreferences()
 void MainWindow::showAbout()
 {
     QMessageBox::about(
-        this,
-        tr("About MS3DMaker"),
+        this, tr("About MS3DMaker"),
         tr("MS3DMaker is an independent open-source parametric 3D CAD application."));
-}
-
-bool MainWindow::showSolidResult(bool ok, const QString& error, const QString& successMessage,
-                                 const QString& failMessage)
-{
-    if (!ok) {
-        QMessageBox::critical(this, tr("Geometry error"),
-                              tr("%1\n%2").arg(failMessage, error));
-        statusBar()->showMessage(failMessage, 5000);
-        return false;
-    }
-    statusBar()->showMessage(successMessage, 4000);
-    return true;
 }
 
 void MainWindow::refreshFeatureList()
@@ -269,7 +405,7 @@ void MainWindow::refreshFeatureList()
     const int previousId =
         m_featureList->currentItem() ? m_featureList->currentItem()->data(Qt::UserRole).toInt() : -1;
     m_featureList->clear();
-    for (const auto& f : m_history.features()) {
+    for (const auto& f : m_document.history().features()) {
         QString status;
         if (f.valid) {
             status = tr("OK");
@@ -296,7 +432,7 @@ bool MainWindow::recomputeAndShow(const QString& successMessage)
         return false;
     }
     m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto report = m_history.recompute();
+    const auto report = m_document.history().recompute();
     refreshFeatureList();
     if (!report.ok) {
         QMessageBox::critical(this, tr("Feature recompute failed"),
@@ -304,8 +440,13 @@ bool MainWindow::recomputeAndShow(const QString& successMessage)
         statusBar()->showMessage(tr("Feature recompute failed"), 5000);
         return false;
     }
-    const auto tip = m_history.tip();
+    const auto tip = m_document.history().tip();
     if (!tip || !tip->valid) {
+        if (m_document.history().features().empty()) {
+            m_view->clearSolidDisplay();
+            statusBar()->showMessage(successMessage, 4000);
+            return true;
+        }
         statusBar()->showMessage(tr("No valid tip feature to display"), 4000);
         return false;
     }
@@ -321,34 +462,40 @@ bool MainWindow::recomputeAndShow(const QString& successMessage)
 int MainWindow::appendPrimitive(ms3d::features::FeatureKind kind,
                                 const std::vector<ms3d::features::FeatureParam>& params)
 {
-    return m_history.addPrimitive(kind, params, ms3d::features::featureKindName(kind));
+    return m_document.history().addPrimitive(kind, params, ms3d::features::featureKindName(kind));
 }
 
 int MainWindow::appendBooleanDemo(ms3d::features::FeatureKind kind)
 {
-    const int a = m_history.addPrimitive(
+    const int a = m_document.history().addPrimitive(
         ms3d::features::FeatureKind::Box, {{"dx", 80}, {"dy", 50}, {"dz", 40}}, "Box");
-    const int b = m_history.addPrimitive(
+    const int b = m_document.history().addPrimitive(
         ms3d::features::FeatureKind::Box, {{"dx", 60}, {"dy", 40}, {"dz", 50}}, "Box");
-    return m_history.addBoolean(kind, a, b, ms3d::features::featureKindName(kind));
+    return m_document.history().addBoolean(kind, a, b, ms3d::features::featureKindName(kind));
 }
 
 void MainWindow::createDemoBox()
 {
     appendPrimitive(ms3d::features::FeatureKind::Box, {{"dx", 100}, {"dy", 60}, {"dz", 30}});
     recomputeAndShow(tr("Displayed box feature 100 × 60 × 30 mm"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoCylinder()
 {
     appendPrimitive(ms3d::features::FeatureKind::Cylinder, {{"radius", 25}, {"height", 60}});
     recomputeAndShow(tr("Displayed cylinder feature r=25 h=60 mm"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoSphere()
 {
     appendPrimitive(ms3d::features::FeatureKind::Sphere, {{"radius", 40}});
     recomputeAndShow(tr("Displayed sphere feature r=40 mm"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoExtrusion()
@@ -356,6 +503,8 @@ void MainWindow::createDemoExtrusion()
     appendPrimitive(ms3d::features::FeatureKind::Extrusion,
                     {{"width", 80}, {"depth", 50}, {"height", 20}});
     recomputeAndShow(tr("Displayed extrusion feature 80 × 50 × 20 mm"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoRevolution()
@@ -363,24 +512,32 @@ void MainWindow::createDemoRevolution()
     appendPrimitive(ms3d::features::FeatureKind::Revolution,
                     {{"innerRadius", 15}, {"outerRadius", 30}, {"height", 50}});
     recomputeAndShow(tr("Displayed revolution feature (r_in=15 r_out=30 h=50 mm)"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoBooleanUnion()
 {
     appendBooleanDemo(ms3d::features::FeatureKind::BooleanUnion);
     recomputeAndShow(tr("Displayed boolean union feature"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoBooleanCut()
 {
     appendBooleanDemo(ms3d::features::FeatureKind::BooleanCut);
     recomputeAndShow(tr("Displayed boolean subtract feature"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::createDemoBooleanCommon()
 {
     appendBooleanDemo(ms3d::features::FeatureKind::BooleanCommon);
     recomputeAndShow(tr("Displayed boolean intersect feature"));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::fitAllView()
@@ -392,10 +549,10 @@ void MainWindow::fitAllView()
 
 void MainWindow::enterSketchTool(ms3d::viewport::SketchTool tool)
 {
-    if (!m_view || !m_sketch) {
+    if (!m_view) {
         return;
     }
-    m_view->setSketch(m_sketch.get());
+    m_view->setSketch(&m_document.sketch());
     m_view->setSketchTool(tool);
     m_view->refreshSketchDisplay();
     m_view->fitAll();
@@ -431,6 +588,8 @@ void MainWindow::setSketchPlane(ms3d::sketch::PlaneId plane)
         return;
     }
     m_view->setSketchPlane(plane);
+    m_document.markDirty();
+    updateWindowTitle();
     statusBar()->showMessage(
         tr("Sketch plane: %1").arg(QString::fromUtf8(ms3d::sketch::planeIdName(plane))), 4000);
 }
@@ -452,51 +611,55 @@ void MainWindow::setPlaneYZ()
 
 void MainWindow::applyHorizontalConstraint()
 {
-    if (!m_sketch || m_selectedEntityId < 0) {
+    auto& sketch = m_document.sketch();
+    if (m_selectedEntityId < 0) {
         statusBar()->showMessage(tr("Select a line first"), 4000);
         return;
     }
-    const auto ent = m_sketch->findEntity(m_selectedEntityId);
+    const auto ent = sketch.findEntity(m_selectedEntityId);
     if (!ent || ent->kind != ms3d::sketch::EntityKind::Line) {
         statusBar()->showMessage(tr("Horizontal constraint requires a line"), 4000);
         return;
     }
-    m_sketch->addConstraint(ms3d::sketch::ConstraintKind::Horizontal, m_selectedEntityId);
-    m_sketch->applyConstraints();
+    sketch.addConstraint(ms3d::sketch::ConstraintKind::Horizontal, m_selectedEntityId);
+    sketch.applyConstraints();
     m_view->refreshSketchDisplay();
+    m_document.markDirty();
+    updateWindowTitle();
     statusBar()->showMessage(tr("Applied horizontal constraint"), 4000);
 }
 
 void MainWindow::applyVerticalConstraint()
 {
-    if (!m_sketch || m_selectedEntityId < 0) {
+    auto& sketch = m_document.sketch();
+    if (m_selectedEntityId < 0) {
         statusBar()->showMessage(tr("Select a line first"), 4000);
         return;
     }
-    const auto ent = m_sketch->findEntity(m_selectedEntityId);
+    const auto ent = sketch.findEntity(m_selectedEntityId);
     if (!ent || ent->kind != ms3d::sketch::EntityKind::Line) {
         statusBar()->showMessage(tr("Vertical constraint requires a line"), 4000);
         return;
     }
-    m_sketch->addConstraint(ms3d::sketch::ConstraintKind::Vertical, m_selectedEntityId);
-    m_sketch->applyConstraints();
+    sketch.addConstraint(ms3d::sketch::ConstraintKind::Vertical, m_selectedEntityId);
+    sketch.applyConstraints();
     m_view->refreshSketchDisplay();
+    m_document.markDirty();
+    updateWindowTitle();
     statusBar()->showMessage(tr("Applied vertical constraint"), 4000);
 }
 
 void MainWindow::validateSketch()
 {
-    if (!m_sketch) {
-        return;
-    }
-    m_sketch->applyConstraints();
-    const auto result = m_sketch->validate();
+    auto& sketch = m_document.sketch();
+    sketch.applyConstraints();
+    const auto result = sketch.validate();
     if (result.ok) {
         QMessageBox::information(this, tr("Sketch validation"),
                                  tr("Sketch is valid (%1 entities, %2 constraints, %3 dimensions).")
-                                     .arg(m_sketch->entities().size())
-                                     .arg(m_sketch->constraints().size())
-                                     .arg(m_sketch->dimensions().size()));
+                                     .arg(sketch.entities().size())
+                                     .arg(sketch.constraints().size())
+                                     .arg(sketch.dimensions().size()));
         statusBar()->showMessage(tr("Sketch valid"), 4000);
         return;
     }
@@ -511,12 +674,13 @@ void MainWindow::validateSketch()
 
 void MainWindow::clearSketch()
 {
-    if (!m_sketch || !m_view) {
-        return;
-    }
-    m_sketch->clear();
+    m_document.sketch().clear();
     m_selectedEntityId = -1;
-    m_view->refreshSketchDisplay();
+    if (m_view) {
+        m_view->refreshSketchDisplay();
+    }
+    m_document.markDirty();
+    updateWindowTitle();
     statusBar()->showMessage(tr("Sketch cleared"), 3000);
 }
 
@@ -532,7 +696,7 @@ void MainWindow::onSketchSelection(int entityId)
         statusBar()->showMessage(tr("No sketch entity selected"), 3000);
         return;
     }
-    const auto ent = m_sketch ? m_sketch->findEntity(entityId) : std::nullopt;
+    const auto ent = m_document.sketch().findEntity(entityId);
     if (!ent) {
         return;
     }
@@ -557,7 +721,7 @@ void MainWindow::onFeatureListSelection()
         return;
     }
     const int id = m_featureList->currentItem()->data(Qt::UserRole).toInt();
-    const auto feature = m_history.find(id);
+    const auto feature = m_document.history().find(id);
     if (!feature) {
         return;
     }
@@ -577,7 +741,7 @@ void MainWindow::editSelectedFeature()
         return;
     }
     const int id = m_featureList->currentItem()->data(Qt::UserRole).toInt();
-    const auto feature = m_history.find(id);
+    const auto feature = m_document.history().find(id);
     if (!feature) {
         return;
     }
@@ -592,20 +756,24 @@ void MainWindow::editSelectedFeature()
         return;
     }
     std::string err;
-    if (!m_history.setParameters(id, dialog.parameters(), &err)) {
+    if (!m_document.history().setParameters(id, dialog.parameters(), &err)) {
         QMessageBox::critical(this, tr("Edit feature"), QString::fromStdString(err));
         return;
     }
     recomputeAndShow(tr("Recomputed after editing %1").arg(QString::fromStdString(feature->name)));
+    m_document.markDirty();
+    updateWindowTitle();
 }
 
 void MainWindow::clearFeatureHistory()
 {
-    m_history.clear();
+    m_document.history().clear();
     refreshFeatureList();
     if (m_view) {
         m_view->clearSolidDisplay();
     }
+    m_document.markDirty();
+    updateWindowTitle();
     statusBar()->showMessage(tr("Feature history cleared"), 3000);
 }
 

@@ -12,6 +12,70 @@
         <translation>File</translation>
     </message>
     <message>
+        <source>New</source>
+        <translation>New</translation>
+    </message>
+    <message>
+        <source>Open…</source>
+        <translation>Open…</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Save</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Save As…</translation>
+    </message>
+    <message>
+        <source>%1 — MS3DMaker</source>
+        <translation>%1 — MS3DMaker</translation>
+    </message>
+    <message>
+        <source>Unsaved changes</source>
+        <translation>Unsaved changes</translation>
+    </message>
+    <message>
+        <source>The document has unsaved changes. Save before continuing?</source>
+        <translation>The document has unsaved changes. Save before continuing?</translation>
+    </message>
+    <message>
+        <source>New document</source>
+        <translation>New document</translation>
+    </message>
+    <message>
+        <source>Open Document</source>
+        <translation>Open Document</translation>
+    </message>
+    <message>
+        <source>MS3DMaker documents (*.%1);;All files (*.*)</source>
+        <translation>MS3DMaker documents (*.%1);;All files (*.*)</translation>
+    </message>
+    <message>
+        <source>Open failed</source>
+        <translation>Open failed</translation>
+    </message>
+    <message>
+        <source>Opened %1</source>
+        <translation>Opened %1</translation>
+    </message>
+    <message>
+        <source>Save failed</source>
+        <translation>Save failed</translation>
+    </message>
+    <message>
+        <source>Saved %1</source>
+        <translation>Saved %1</translation>
+    </message>
+    <message>
+        <source>Save Document As</source>
+        <translation>Save Document As</translation>
+    </message>
+    <message>
+        <source>MS3DMaker documents (*.%1)</source>
+        <translation>MS3DMaker documents (*.%1)</translation>
+    </message>
+    <message>
         <source>Create</source>
         <translation>Create</translation>
     </message>
