@@ -6,16 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-
-if(NOT DEFINED ENV{CASROOT})
-  if(EXISTS "C:/Dev/OCCT/install")
-    set(ENV{CASROOT} "C:/Dev/OCCT/install")
-  elseif(EXISTS "F:/Dev/OCCT/install")
-    set(ENV{CASROOT} "F:/Dev/OCCT/install")
-  endif()
-endif()
-set(OpenCASCADE_DIR "$ENV{CASROOT}/cmake" CACHE PATH "OCCT CMake package dir")
-find_package(OpenCASCADE REQUIRED)
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/FindMs3dOcct.cmake")
 
 add_executable(qt_occt main.cpp)
 target_include_directories(qt_occt PRIVATE ${OpenCASCADE_INCLUDE_DIR})
