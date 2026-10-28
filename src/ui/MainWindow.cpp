@@ -4,6 +4,9 @@
 #include "io/StepIO.h"
 #include "viewport/OcctView.h"
 
+#include <gp_Trsf.hxx>
+#include <gp_Vec.hxx>
+
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QCloseEvent>
@@ -64,6 +67,8 @@ void MainWindow::buildUi()
     m_fileMenu = menuBar()->addMenu(QString());
     m_createMenu = menuBar()->addMenu(QString());
     m_sketchMenu = menuBar()->addMenu(QString());
+    m_assemblyMenu = menuBar()->addMenu(QString());
+    m_drawingMenu = menuBar()->addMenu(QString());
     m_editMenu = menuBar()->addMenu(QString());
     m_viewMenu = menuBar()->addMenu(QString());
     m_helpMenu = menuBar()->addMenu(QString());
@@ -183,6 +188,38 @@ void MainWindow::buildUi()
     connect(m_clearSketchAction, &QAction::triggered, this, &MainWindow::clearSketch);
     m_sketchMenu->addAction(m_clearSketchAction);
 
+    m_assemblyAddAction = new QAction(this);
+    connect(m_assemblyAddAction, &QAction::triggered, this, &MainWindow::assemblyAddCurrent);
+    m_assemblyMenu->addAction(m_assemblyAddAction);
+
+    m_assemblyAddOffsetAction = new QAction(this);
+    connect(m_assemblyAddOffsetAction, &QAction::triggered, this, &MainWindow::assemblyAddOffsetDemo);
+    m_assemblyMenu->addAction(m_assemblyAddOffsetAction);
+
+    m_assemblyShowAction = new QAction(this);
+    connect(m_assemblyShowAction, &QAction::triggered, this, &MainWindow::assemblyShow);
+    m_assemblyMenu->addAction(m_assemblyShowAction);
+
+    m_assemblyClearAction = new QAction(this);
+    connect(m_assemblyClearAction, &QAction::triggered, this, &MainWindow::assemblyClear);
+    m_assemblyMenu->addAction(m_assemblyClearAction);
+
+    m_drawingFrontAction = new QAction(this);
+    connect(m_drawingFrontAction, &QAction::triggered, this, &MainWindow::drawingFront);
+    m_drawingMenu->addAction(m_drawingFrontAction);
+
+    m_drawingTopAction = new QAction(this);
+    connect(m_drawingTopAction, &QAction::triggered, this, &MainWindow::drawingTop);
+    m_drawingMenu->addAction(m_drawingTopAction);
+
+    m_drawingRightAction = new QAction(this);
+    connect(m_drawingRightAction, &QAction::triggered, this, &MainWindow::drawingRight);
+    m_drawingMenu->addAction(m_drawingRightAction);
+
+    m_drawingIsoAction = new QAction(this);
+    connect(m_drawingIsoAction, &QAction::triggered, this, &MainWindow::drawingIso);
+    m_drawingMenu->addAction(m_drawingIsoAction);
+
     m_editFeatureAction = new QAction(this);
     connect(m_editFeatureAction, &QAction::triggered, this, &MainWindow::editSelectedFeature);
     m_editMenu->addAction(m_editFeatureAction);
@@ -210,6 +247,8 @@ void MainWindow::retranslateUi()
     m_fileMenu->setTitle(tr("File"));
     m_createMenu->setTitle(tr("Create"));
     m_sketchMenu->setTitle(tr("Sketch"));
+    m_assemblyMenu->setTitle(tr("Assembly"));
+    m_drawingMenu->setTitle(tr("Drawing"));
     m_editMenu->setTitle(tr("Edit"));
     m_viewMenu->setTitle(tr("View"));
     m_helpMenu->setTitle(tr("Help"));
@@ -238,6 +277,14 @@ void MainWindow::retranslateUi()
     m_constraintVAction->setText(tr("Make Vertical"));
     m_validateSketchAction->setText(tr("Validate Sketch"));
     m_clearSketchAction->setText(tr("Clear Sketch"));
+    m_assemblyAddAction->setText(tr("Add Current Solid"));
+    m_assemblyAddOffsetAction->setText(tr("Add Current Solid (+X offset)"));
+    m_assemblyShowAction->setText(tr("Show Assembly"));
+    m_assemblyClearAction->setText(tr("Clear Assembly"));
+    m_drawingFrontAction->setText(tr("Front View (HLR)"));
+    m_drawingTopAction->setText(tr("Top View (HLR)"));
+    m_drawingRightAction->setText(tr("Right View (HLR)"));
+    m_drawingIsoAction->setText(tr("Isometric View (HLR)"));
     m_editFeatureAction->setText(tr("Edit Feature Parameters…"));
     m_clearHistoryAction->setText(tr("Clear Feature History"));
     m_preferencesAction->setText(tr("Preferences…"));
@@ -397,13 +444,131 @@ void MainWindow::fileSaveAs()
     statusBar()->showMessage(tr("Saved %1").arg(m_document.filePath()), 4000);
 }
 
-TopoDS_Shape MainWindow::shapeForStepExport() const
+TopoDS_Shape MainWindow::currentSolidSource() const
 {
     const auto tip = m_document.history().tip();
     if (tip && tip->valid && !tip->result.IsNull()) {
         return tip->result;
     }
     return m_importedShape;
+}
+
+TopoDS_Shape MainWindow::shapeForStepExport() const
+{
+    const auto built = m_assembly.buildCompound();
+    if (built.ok && !built.compound.IsNull()) {
+        return built.compound;
+    }
+    return currentSolidSource();
+}
+
+void MainWindow::assemblyAddCurrent()
+{
+    const TopoDS_Shape shape = currentSolidSource();
+    if (shape.IsNull()) {
+        QMessageBox::warning(this, tr("Assembly"),
+                             tr("No solid available. Create a feature or import STEP first."));
+        return;
+    }
+    gp_Trsf identity;
+    const int id = m_assembly.addInstance(shape, identity, "Component");
+    statusBar()->showMessage(
+        tr("Assembly: added component id %1 (total %2)")
+            .arg(id)
+            .arg(m_assembly.instances().size()),
+        4000);
+}
+
+void MainWindow::assemblyAddOffsetDemo()
+{
+    const TopoDS_Shape shape = currentSolidSource();
+    if (shape.IsNull()) {
+        QMessageBox::warning(this, tr("Assembly"),
+                             tr("No solid available. Create a feature or import STEP first."));
+        return;
+    }
+    gp_Trsf trsf;
+    trsf.SetTranslation(gp_Vec(120.0, 0.0, 0.0));
+    const int id = m_assembly.addInstance(shape, trsf, "Offset");
+    statusBar()->showMessage(
+        tr("Assembly: added offset component id %1 (total %2)")
+            .arg(id)
+            .arg(m_assembly.instances().size()),
+        4000);
+}
+
+void MainWindow::assemblyShow()
+{
+    const auto built = m_assembly.buildCompound();
+    if (!built.ok) {
+        QMessageBox::warning(this, tr("Assembly"), QString::fromStdString(built.error));
+        return;
+    }
+    if (!m_view) {
+        return;
+    }
+    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
+    QString error;
+    if (!m_view->displaySolid(built.compound, &error)) {
+        QMessageBox::critical(this, tr("Assembly"), error);
+        return;
+    }
+    statusBar()->showMessage(
+        tr("Showing assembly (%1 components)").arg(built.instanceCount), 4000);
+}
+
+void MainWindow::assemblyClear()
+{
+    m_assembly.clear();
+    statusBar()->showMessage(tr("Assembly cleared"), 3000);
+}
+
+void MainWindow::showDrawingView(ms3d::drawing::ViewOrientation orientation)
+{
+    const TopoDS_Shape shape = currentSolidSource();
+    if (shape.IsNull()) {
+        QMessageBox::warning(this, tr("Drawing"),
+                             tr("No solid available. Create a feature or import STEP first."));
+        return;
+    }
+    const auto view = ms3d::drawing::makeHlrView(shape, orientation);
+    if (!view.ok) {
+        QMessageBox::critical(this, tr("Drawing"), QString::fromStdString(view.error));
+        return;
+    }
+    if (!m_view) {
+        return;
+    }
+    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
+    QString error;
+    if (!m_view->displaySolid(view.edges, &error)) {
+        QMessageBox::critical(this, tr("Drawing"), error);
+        return;
+    }
+    statusBar()->showMessage(
+        tr("Drawing view: %1")
+            .arg(QString::fromUtf8(ms3d::drawing::viewOrientationName(orientation))),
+        4000);
+}
+
+void MainWindow::drawingFront()
+{
+    showDrawingView(ms3d::drawing::ViewOrientation::Front);
+}
+
+void MainWindow::drawingTop()
+{
+    showDrawingView(ms3d::drawing::ViewOrientation::Top);
+}
+
+void MainWindow::drawingRight()
+{
+    showDrawingView(ms3d::drawing::ViewOrientation::Right);
+}
+
+void MainWindow::drawingIso()
+{
+    showDrawingView(ms3d::drawing::ViewOrientation::Iso);
 }
 
 void MainWindow::fileImportStep()

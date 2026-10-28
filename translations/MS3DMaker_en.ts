@@ -274,6 +274,70 @@
         <translation>Sketch</translation>
     </message>
     <message>
+        <source>Assembly</source>
+        <translation>Assembly</translation>
+    </message>
+    <message>
+        <source>Drawing</source>
+        <translation>Drawing</translation>
+    </message>
+    <message>
+        <source>Add Current Solid</source>
+        <translation>Add Current Solid</translation>
+    </message>
+    <message>
+        <source>Add Current Solid (+X offset)</source>
+        <translation>Add Current Solid (+X offset)</translation>
+    </message>
+    <message>
+        <source>Show Assembly</source>
+        <translation>Show Assembly</translation>
+    </message>
+    <message>
+        <source>Clear Assembly</source>
+        <translation>Clear Assembly</translation>
+    </message>
+    <message>
+        <source>Front View (HLR)</source>
+        <translation>Front View (HLR)</translation>
+    </message>
+    <message>
+        <source>Top View (HLR)</source>
+        <translation>Top View (HLR)</translation>
+    </message>
+    <message>
+        <source>Right View (HLR)</source>
+        <translation>Right View (HLR)</translation>
+    </message>
+    <message>
+        <source>Isometric View (HLR)</source>
+        <translation>Isometric View (HLR)</translation>
+    </message>
+    <message>
+        <source>No solid available. Create a feature or import STEP first.</source>
+        <translation>No solid available. Create a feature or import STEP first.</translation>
+    </message>
+    <message>
+        <source>Assembly: added component id %1 (total %2)</source>
+        <translation>Assembly: added component id %1 (total %2)</translation>
+    </message>
+    <message>
+        <source>Assembly: added offset component id %1 (total %2)</source>
+        <translation>Assembly: added offset component id %1 (total %2)</translation>
+    </message>
+    <message>
+        <source>Showing assembly (%1 components)</source>
+        <translation>Showing assembly (%1 components)</translation>
+    </message>
+    <message>
+        <source>Assembly cleared</source>
+        <translation>Assembly cleared</translation>
+    </message>
+    <message>
+        <source>Drawing view: %1</source>
+        <translation>Drawing view: %1</translation>
+    </message>
+    <message>
         <source>Select</source>
         <translation>Select</translation>
     </message>

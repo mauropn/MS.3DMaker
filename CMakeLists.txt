@@ -39,8 +39,12 @@ find_package(OpenCASCADE REQUIRED)
 
 set(MS3D_SOURCES
   src/app/main.cpp
+  src/assembly/Assembly.cpp
+  src/assembly/Assembly.h
   src/document/Document.cpp
   src/document/Document.h
+  src/drawing/DrawingViews.cpp
+  src/drawing/DrawingViews.h
   src/features/FeatureHistory.cpp
   src/features/FeatureHistory.h
   src/features/FeatureTypes.h
@@ -71,7 +75,7 @@ target_include_directories(MS3DMaker PRIVATE
 target_link_libraries(MS3DMaker PRIVATE
   Qt6::Widgets
   TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
-  TKBO TKBool TKShHealing
+  TKBO TKBool TKShHealing TKHLR
   TKService TKV3d TKOpenGl
   TKXSBase TKDE TKDESTEP
 )
@@ -302,6 +306,66 @@ if(MS3D_BUILD_TESTS)
     endforeach()
   endif()
   add_test(NAME step COMMAND test_step)
+
+  add_executable(test_assembly
+    tests/test_assembly.cpp
+    src/assembly/Assembly.cpp
+    src/assembly/Assembly.h
+    src/geometry/SolidFactory.cpp
+    src/geometry/SolidFactory.h
+  )
+  target_include_directories(test_assembly PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_assembly PRIVATE
+    Qt6::Test
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKShHealing)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_assembly POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_assembly>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME assembly COMMAND test_assembly)
+
+  add_executable(test_drawing
+    tests/test_drawing.cpp
+    src/drawing/DrawingViews.cpp
+    src/drawing/DrawingViews.h
+    src/geometry/SolidFactory.cpp
+    src/geometry/SolidFactory.h
+  )
+  target_include_directories(test_drawing PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_drawing PRIVATE
+    Qt6::Test
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing TKHLR
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKShHealing TKHLR TKMesh)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_drawing POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_drawing>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME drawing COMMAND test_drawing)
 endif()
 
 install(TARGETS MS3DMaker RUNTIME DESTINATION bin)

@@ -1,6 +1,8 @@
 #pragma once
 
+#include "assembly/Assembly.h"
 #include "document/Document.h"
+#include "drawing/DrawingViews.h"
 #include "viewport/OcctView.h"
 
 #include <QMainWindow>
@@ -53,6 +55,16 @@ public slots:
     void clearFeatureHistory();
     void onFeatureListSelection();
 
+    void assemblyAddCurrent();
+    void assemblyAddOffsetDemo();
+    void assemblyShow();
+    void assemblyClear();
+
+    void drawingFront();
+    void drawingTop();
+    void drawingRight();
+    void drawingIso();
+
 protected:
     void changeEvent(QEvent* event) override;
     void showEvent(QShowEvent* event) override;
@@ -71,10 +83,14 @@ private:
     int appendPrimitive(ms3d::features::FeatureKind kind,
                         const std::vector<ms3d::features::FeatureParam>& params);
     int appendBooleanDemo(ms3d::features::FeatureKind kind);
+    TopoDS_Shape currentSolidSource() const;
+    void showDrawingView(ms3d::drawing::ViewOrientation orientation);
 
     QMenu* m_fileMenu = nullptr;
     QMenu* m_createMenu = nullptr;
     QMenu* m_sketchMenu = nullptr;
+    QMenu* m_assemblyMenu = nullptr;
+    QMenu* m_drawingMenu = nullptr;
     QMenu* m_editMenu = nullptr;
     QMenu* m_viewMenu = nullptr;
     QMenu* m_helpMenu = nullptr;
@@ -109,11 +125,20 @@ private:
     QAction* m_clearSketchAction = nullptr;
     QAction* m_editFeatureAction = nullptr;
     QAction* m_clearHistoryAction = nullptr;
+    QAction* m_assemblyAddAction = nullptr;
+    QAction* m_assemblyAddOffsetAction = nullptr;
+    QAction* m_assemblyShowAction = nullptr;
+    QAction* m_assemblyClearAction = nullptr;
+    QAction* m_drawingFrontAction = nullptr;
+    QAction* m_drawingTopAction = nullptr;
+    QAction* m_drawingRightAction = nullptr;
+    QAction* m_drawingIsoAction = nullptr;
     QListWidget* m_featureList = nullptr;
     ms3d::viewport::OcctView* m_view = nullptr;
     TopoDS_Shape shapeForStepExport() const;
 
     ms3d::document::Document m_document;
+    ms3d::assembly::Assembly m_assembly;
     TopoDS_Shape m_importedShape;
     int m_selectedEntityId = -1;
     bool m_demoBoxLoaded = false;

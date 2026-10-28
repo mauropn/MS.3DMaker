@@ -274,6 +274,70 @@
         <translation>Esboço</translation>
     </message>
     <message>
+        <source>Assembly</source>
+        <translation>Montagem</translation>
+    </message>
+    <message>
+        <source>Drawing</source>
+        <translation>Desenho</translation>
+    </message>
+    <message>
+        <source>Add Current Solid</source>
+        <translation>Adicionar sólido atual</translation>
+    </message>
+    <message>
+        <source>Add Current Solid (+X offset)</source>
+        <translation>Adicionar sólido atual (deslocamento +X)</translation>
+    </message>
+    <message>
+        <source>Show Assembly</source>
+        <translation>Exibir montagem</translation>
+    </message>
+    <message>
+        <source>Clear Assembly</source>
+        <translation>Limpar montagem</translation>
+    </message>
+    <message>
+        <source>Front View (HLR)</source>
+        <translation>Vista frontal (HLR)</translation>
+    </message>
+    <message>
+        <source>Top View (HLR)</source>
+        <translation>Vista superior (HLR)</translation>
+    </message>
+    <message>
+        <source>Right View (HLR)</source>
+        <translation>Vista direita (HLR)</translation>
+    </message>
+    <message>
+        <source>Isometric View (HLR)</source>
+        <translation>Vista isométrica (HLR)</translation>
+    </message>
+    <message>
+        <source>No solid available. Create a feature or import STEP first.</source>
+        <translation>Nenhum sólido disponível. Crie um recurso ou importe STEP primeiro.</translation>
+    </message>
+    <message>
+        <source>Assembly: added component id %1 (total %2)</source>
+        <translation>Montagem: componente id %1 adicionado (total %2)</translation>
+    </message>
+    <message>
+        <source>Assembly: added offset component id %1 (total %2)</source>
+        <translation>Montagem: componente deslocado id %1 adicionado (total %2)</translation>
+    </message>
+    <message>
+        <source>Showing assembly (%1 components)</source>
+        <translation>Exibindo montagem (%1 componentes)</translation>
+    </message>
+    <message>
+        <source>Assembly cleared</source>
+        <translation>Montagem limpa</translation>
+    </message>
+    <message>
+        <source>Drawing view: %1</source>
+        <translation>Vista de desenho: %1</translation>
+    </message>
+    <message>
         <source>Select</source>
         <translation>Selecionar</translation>
     </message>
