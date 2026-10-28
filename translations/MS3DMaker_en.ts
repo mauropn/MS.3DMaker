@@ -279,6 +279,105 @@
         <source>Selected %1 (id %2)</source>
         <translation>Selected %1 (id %2)</translation>
     </message>
+    <message>
+        <source>Feature History</source>
+        <translation>Feature History</translation>
+    </message>
+    <message>
+        <source>Edit Feature Parameters…</source>
+        <translation>Edit Feature Parameters…</translation>
+    </message>
+    <message>
+        <source>Clear Feature History</source>
+        <translation>Clear Feature History</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Dirty</source>
+        <translation>Dirty</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <source>%1 [%2]</source>
+        <translation>%1 [%2]</translation>
+    </message>
+    <message>
+        <source>Feature recompute failed</source>
+        <translation>Feature recompute failed</translation>
+    </message>
+    <message>
+        <source>No valid tip feature to display</source>
+        <translation>No valid tip feature to display</translation>
+    </message>
+    <message>
+        <source>Displayed box feature 100 × 60 × 30 mm</source>
+        <translation>Displayed box feature 100 × 60 × 30 mm</translation>
+    </message>
+    <message>
+        <source>Displayed cylinder feature r=25 h=60 mm</source>
+        <translation>Displayed cylinder feature r=25 h=60 mm</translation>
+    </message>
+    <message>
+        <source>Displayed sphere feature r=40 mm</source>
+        <translation>Displayed sphere feature r=40 mm</translation>
+    </message>
+    <message>
+        <source>Displayed extrusion feature 80 × 50 × 20 mm</source>
+        <translation>Displayed extrusion feature 80 × 50 × 20 mm</translation>
+    </message>
+    <message>
+        <source>Displayed revolution feature (r_in=15 r_out=30 h=50 mm)</source>
+        <translation>Displayed revolution feature (r_in=15 r_out=30 h=50 mm)</translation>
+    </message>
+    <message>
+        <source>Displayed boolean union feature</source>
+        <translation>Displayed boolean union feature</translation>
+    </message>
+    <message>
+        <source>Displayed boolean subtract feature</source>
+        <translation>Displayed boolean subtract feature</translation>
+    </message>
+    <message>
+        <source>Displayed boolean intersect feature</source>
+        <translation>Displayed boolean intersect feature</translation>
+    </message>
+    <message>
+        <source>Feature %1 selected</source>
+        <translation>Feature %1 selected</translation>
+    </message>
+    <message>
+        <source>Select a feature in the history list</source>
+        <translation>Select a feature in the history list</translation>
+    </message>
+    <message>
+        <source>Edit feature</source>
+        <translation>Edit feature</translation>
+    </message>
+    <message>
+        <source>This feature has no editable numeric parameters.</source>
+        <translation>This feature has no editable numeric parameters.</translation>
+    </message>
+    <message>
+        <source>Recomputed after editing %1</source>
+        <translation>Recomputed after editing %1</translation>
+    </message>
+    <message>
+        <source>Feature history cleared</source>
+        <translation>Feature history cleared</translation>
+    </message>
+</context>
+<context>
+    <name>ms3d::ui::FeatureEditDialog</name>
+    <message>
+        <source>Edit feature parameters</source>
+        <translation>Edit feature parameters</translation>
+    </message>
 </context>
 <context>
     <name>ms3d::viewport::OcctView</name>

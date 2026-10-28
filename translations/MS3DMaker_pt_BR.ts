@@ -279,6 +279,105 @@
         <source>Selected %1 (id %2)</source>
         <translation>Selecionado: %1 (id %2)</translation>
     </message>
+    <message>
+        <source>Feature History</source>
+        <translation>Histórico de recursos</translation>
+    </message>
+    <message>
+        <source>Edit Feature Parameters…</source>
+        <translation>Editar parâmetros do recurso…</translation>
+    </message>
+    <message>
+        <source>Clear Feature History</source>
+        <translation>Limpar histórico de recursos</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Dirty</source>
+        <translation>Pendente</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Erro</translation>
+    </message>
+    <message>
+        <source>%1 [%2]</source>
+        <translation>%1 [%2]</translation>
+    </message>
+    <message>
+        <source>Feature recompute failed</source>
+        <translation>Falha ao recomputar recursos</translation>
+    </message>
+    <message>
+        <source>No valid tip feature to display</source>
+        <translation>Nenhum recurso válido na ponta para exibir</translation>
+    </message>
+    <message>
+        <source>Displayed box feature 100 × 60 × 30 mm</source>
+        <translation>Recurso caixa exibido 100 × 60 × 30 mm</translation>
+    </message>
+    <message>
+        <source>Displayed cylinder feature r=25 h=60 mm</source>
+        <translation>Recurso cilindro exibido r=25 h=60 mm</translation>
+    </message>
+    <message>
+        <source>Displayed sphere feature r=40 mm</source>
+        <translation>Recurso esfera exibido r=40 mm</translation>
+    </message>
+    <message>
+        <source>Displayed extrusion feature 80 × 50 × 20 mm</source>
+        <translation>Recurso extrusão exibido 80 × 50 × 20 mm</translation>
+    </message>
+    <message>
+        <source>Displayed revolution feature (r_in=15 r_out=30 h=50 mm)</source>
+        <translation>Recurso revolução exibido (r_int=15 r_ext=30 h=50 mm)</translation>
+    </message>
+    <message>
+        <source>Displayed boolean union feature</source>
+        <translation>Recurso união booleana exibido</translation>
+    </message>
+    <message>
+        <source>Displayed boolean subtract feature</source>
+        <translation>Recurso subtração booleana exibido</translation>
+    </message>
+    <message>
+        <source>Displayed boolean intersect feature</source>
+        <translation>Recurso interseção booleana exibido</translation>
+    </message>
+    <message>
+        <source>Feature %1 selected</source>
+        <translation>Recurso %1 selecionado</translation>
+    </message>
+    <message>
+        <source>Select a feature in the history list</source>
+        <translation>Selecione um recurso na lista de histórico</translation>
+    </message>
+    <message>
+        <source>Edit feature</source>
+        <translation>Editar recurso</translation>
+    </message>
+    <message>
+        <source>This feature has no editable numeric parameters.</source>
+        <translation>Este recurso não tem parâmetros numéricos editáveis.</translation>
+    </message>
+    <message>
+        <source>Recomputed after editing %1</source>
+        <translation>Recomputado após editar %1</translation>
+    </message>
+    <message>
+        <source>Feature history cleared</source>
+        <translation>Histórico de recursos limpo</translation>
+    </message>
+</context>
+<context>
+    <name>ms3d::ui::FeatureEditDialog</name>
+    <message>
+        <source>Edit feature parameters</source>
+        <translation>Editar parâmetros do recurso</translation>
+    </message>
 </context>
 <context>
     <name>ms3d::viewport::OcctView</name>

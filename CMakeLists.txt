@@ -39,6 +39,9 @@ find_package(OpenCASCADE REQUIRED)
 
 set(MS3D_SOURCES
   src/app/main.cpp
+  src/features/FeatureHistory.cpp
+  src/features/FeatureHistory.h
+  src/features/FeatureTypes.h
   src/geometry/SolidFactory.cpp
   src/geometry/SolidFactory.h
   src/i18n/LanguageService.cpp
@@ -46,6 +49,8 @@ set(MS3D_SOURCES
   src/sketch/Sketch.cpp
   src/sketch/Sketch.h
   src/sketch/SketchTypes.h
+  src/ui/FeatureEditDialog.cpp
+  src/ui/FeatureEditDialog.h
   src/ui/MainWindow.cpp
   src/ui/MainWindow.h
   src/ui/PreferencesDialog.cpp
@@ -190,6 +195,37 @@ if(MS3D_BUILD_TESTS)
     endforeach()
   endif()
   add_test(NAME sketch COMMAND test_sketch)
+
+  add_executable(test_feature_history
+    tests/test_feature_history.cpp
+    src/features/FeatureHistory.cpp
+    src/features/FeatureHistory.h
+    src/features/FeatureTypes.h
+    src/geometry/SolidFactory.cpp
+    src/geometry/SolidFactory.h
+  )
+  target_include_directories(test_feature_history PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_feature_history PRIVATE
+    Qt6::Test
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKShHealing)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_feature_history POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_feature_history>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME feature_history COMMAND test_feature_history)
 endif()
 
 install(TARGETS MS3DMaker RUNTIME DESTINATION bin)

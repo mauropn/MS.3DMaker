@@ -13,7 +13,8 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 3 — Governance docs; license locked as **MIT OR Apache-2.0** (same model as SolidCraft)  
 - Phase 4 — OCCT 3D viewport, navigation, selection, demo box solid (see [docs/development/phase4-viewport.md](docs/development/phase4-viewport.md))  
 - Phase 5.1 — Basic geometry: primitives, extrude/revolve, booleans (see [docs/development/phase5-m2-geometry.md](docs/development/phase5-m2-geometry.md))  
-- Phase 5.2 — Sketcher: planes, line/circle/rectangle, constraints, validation (see [docs/development/phase5-m3-sketcher.md](docs/development/phase5-m3-sketcher.md))
+- Phase 5.2 — Sketcher: planes, line/circle/rectangle, constraints, validation (see [docs/development/phase5-m3-sketcher.md](docs/development/phase5-m3-sketcher.md))  
+- Phase 5.3 — Feature history: params, deps, recompute, edit (see [docs/development/phase5-m4-feature-history.md](docs/development/phase5-m4-feature-history.md))
 
 ## Community
 

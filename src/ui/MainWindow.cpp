@@ -1,39 +1,24 @@
 #include "MainWindow.h"
+#include "FeatureEditDialog.h"
 #include "PreferencesDialog.h"
-#include "geometry/SolidFactory.h"
 #include "viewport/OcctView.h"
 
-#include <BRepBuilderAPI_Transform.hxx>
-#include <BRepPrimAPI_MakeBox.hxx>
-#include <TopoDS.hxx>
-#include <gp_Trsf.hxx>
-#include <gp_Vec.hxx>
-
+#include <QAbstractItemView>
 #include <QApplication>
+#include <QDockWidget>
 #include <QEvent>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QShowEvent>
 #include <QStatusBar>
+#include <QVariant>
 #include <QVBoxLayout>
 #include <QWidget>
 
 namespace ms3d::ui {
-namespace {
-
-TopoDS_Solid translatedBox(double dx, double dy, double dz, double tx, double ty, double tz)
-{
-    BRepPrimAPI_MakeBox maker(dx, dy, dz);
-    maker.Build();
-    TopoDS_Solid solid = maker.Solid();
-    gp_Trsf trsf;
-    trsf.SetTranslation(gp_Vec(tx, ty, tz));
-    BRepBuilderAPI_Transform xform(solid, trsf);
-    return TopoDS::Solid(xform.Shape());
-}
-
-} // namespace
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -51,12 +36,28 @@ void MainWindow::buildUi()
     m_view = new ms3d::viewport::OcctView(central);
     layout->addWidget(m_view);
     setCentralWidget(central);
-    resize(960, 640);
+    resize(1100, 700);
 
     m_view->setSketch(m_sketch.get());
     connect(m_view, &ms3d::viewport::OcctView::statusMessage, this, &MainWindow::onSketchStatus);
     connect(m_view, &ms3d::viewport::OcctView::sketchSelectionChanged, this,
             &MainWindow::onSketchSelection);
+
+    auto* dock = new QDockWidget(this);
+    dock->setObjectName(QStringLiteral("FeatureHistoryDock"));
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    m_featureList = new QListWidget(dock);
+    m_featureList->setSelectionMode(QAbstractItemView::SingleSelection);
+    connect(m_featureList, &QListWidget::itemSelectionChanged, this,
+            &MainWindow::onFeatureListSelection);
+    connect(m_featureList, &QListWidget::itemDoubleClicked, this,
+            [this](QListWidgetItem*) { editSelectedFeature(); });
+    dock->setWidget(m_featureList);
+    addDockWidget(Qt::LeftDockWidgetArea, dock);
+    m_featureList->setParent(dock);
+    // Keep dock title via retranslate — store as property
+    dock->setWindowTitle(tr("Feature History"));
+    m_featureList->setProperty("historyDock", QVariant::fromValue(static_cast<QWidget*>(dock)));
 
     m_fileMenu = menuBar()->addMenu(QString());
     m_createMenu = menuBar()->addMenu(QString());
@@ -148,13 +149,22 @@ void MainWindow::buildUi()
     connect(m_clearSketchAction, &QAction::triggered, this, &MainWindow::clearSketch);
     m_sketchMenu->addAction(m_clearSketchAction);
 
-    m_quitAction = new QAction(this);
-    connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
-    m_fileMenu->addAction(m_quitAction);
+    m_editFeatureAction = new QAction(this);
+    connect(m_editFeatureAction, &QAction::triggered, this, &MainWindow::editSelectedFeature);
+    m_editMenu->addAction(m_editFeatureAction);
+
+    m_clearHistoryAction = new QAction(this);
+    connect(m_clearHistoryAction, &QAction::triggered, this, &MainWindow::clearFeatureHistory);
+    m_editMenu->addAction(m_clearHistoryAction);
 
     m_preferencesAction = new QAction(this);
     connect(m_preferencesAction, &QAction::triggered, this, &MainWindow::openPreferences);
+    m_editMenu->addSeparator();
     m_editMenu->addAction(m_preferencesAction);
+
+    m_quitAction = new QAction(this);
+    connect(m_quitAction, &QAction::triggered, qApp, &QApplication::quit);
+    m_fileMenu->addAction(m_quitAction);
 
     m_fitAllAction = new QAction(this);
     connect(m_fitAllAction, &QAction::triggered, this, &MainWindow::fitAllView);
@@ -193,12 +203,18 @@ void MainWindow::retranslateUi()
     m_constraintVAction->setText(tr("Make Vertical"));
     m_validateSketchAction->setText(tr("Validate Sketch"));
     m_clearSketchAction->setText(tr("Clear Sketch"));
+    m_editFeatureAction->setText(tr("Edit Feature Parameters…"));
+    m_clearHistoryAction->setText(tr("Clear Feature History"));
     m_preferencesAction->setText(tr("Preferences…"));
     m_quitAction->setText(tr("Quit"));
     m_fitAllAction->setText(tr("Fit All"));
     m_aboutAction->setText(tr("About MS3DMaker"));
+    if (auto* dock = findChild<QDockWidget*>(QStringLiteral("FeatureHistoryDock"))) {
+        dock->setWindowTitle(tr("Feature History"));
+    }
     statusBar()->showMessage(
         tr("Orbit: Shift+LMB drag · Pan: MMB or Alt+LMB · Zoom: wheel / RMB drag · Select: LMB"));
+    refreshFeatureList();
 }
 
 void MainWindow::changeEvent(QEvent* event)
@@ -245,113 +261,126 @@ bool MainWindow::showSolidResult(bool ok, const QString& error, const QString& s
     return true;
 }
 
-void MainWindow::createDemoBox()
+void MainWindow::refreshFeatureList()
 {
-    if (!m_view) {
+    if (!m_featureList) {
         return;
     }
+    const int previousId =
+        m_featureList->currentItem() ? m_featureList->currentItem()->data(Qt::UserRole).toInt() : -1;
+    m_featureList->clear();
+    for (const auto& f : m_history.features()) {
+        QString status;
+        if (f.valid) {
+            status = tr("OK");
+        } else if (f.dirty) {
+            status = tr("Dirty");
+        } else {
+            status = tr("Error");
+        }
+        auto* item = new QListWidgetItem(
+            tr("%1 [%2]").arg(QString::fromStdString(f.name), status), m_featureList);
+        item->setData(Qt::UserRole, f.id);
+        if (!f.error.empty()) {
+            item->setToolTip(QString::fromStdString(f.error));
+        }
+        if (f.id == previousId) {
+            m_featureList->setCurrentItem(item);
+        }
+    }
+}
+
+bool MainWindow::recomputeAndShow(const QString& successMessage)
+{
+    if (!m_view) {
+        return false;
+    }
     m_view->setSketchTool(ms3d::viewport::SketchTool::None);
+    const auto report = m_history.recompute();
+    refreshFeatureList();
+    if (!report.ok) {
+        QMessageBox::critical(this, tr("Feature recompute failed"),
+                              QString::fromStdString(report.message));
+        statusBar()->showMessage(tr("Feature recompute failed"), 5000);
+        return false;
+    }
+    const auto tip = m_history.tip();
+    if (!tip || !tip->valid) {
+        statusBar()->showMessage(tr("No valid tip feature to display"), 4000);
+        return false;
+    }
     QString error;
-    const bool ok = m_view->displayBox(100.0, 60.0, 30.0, &error);
-    showSolidResult(ok, error, tr("Displayed box 100 × 60 × 30 mm"),
-                    tr("Could not create or display the box."));
+    if (!m_view->displaySolid(tip->result, &error)) {
+        QMessageBox::critical(this, tr("Geometry error"), error);
+        return false;
+    }
+    statusBar()->showMessage(successMessage, 4000);
+    return true;
+}
+
+int MainWindow::appendPrimitive(ms3d::features::FeatureKind kind,
+                                const std::vector<ms3d::features::FeatureParam>& params)
+{
+    return m_history.addPrimitive(kind, params, ms3d::features::featureKindName(kind));
+}
+
+int MainWindow::appendBooleanDemo(ms3d::features::FeatureKind kind)
+{
+    const int a = m_history.addPrimitive(
+        ms3d::features::FeatureKind::Box, {{"dx", 80}, {"dy", 50}, {"dz", 40}}, "Box");
+    const int b = m_history.addPrimitive(
+        ms3d::features::FeatureKind::Box, {{"dx", 60}, {"dy", 40}, {"dz", 50}}, "Box");
+    return m_history.addBoolean(kind, a, b, ms3d::features::featureKindName(kind));
+}
+
+void MainWindow::createDemoBox()
+{
+    appendPrimitive(ms3d::features::FeatureKind::Box, {{"dx", 100}, {"dy", 60}, {"dz", 30}});
+    recomputeAndShow(tr("Displayed box feature 100 × 60 × 30 mm"));
 }
 
 void MainWindow::createDemoCylinder()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto created = ms3d::geometry::makeCylinder(25.0, 60.0);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed cylinder r=25 h=60 mm"),
-                    tr("Could not create or display the cylinder."));
+    appendPrimitive(ms3d::features::FeatureKind::Cylinder, {{"radius", 25}, {"height", 60}});
+    recomputeAndShow(tr("Displayed cylinder feature r=25 h=60 mm"));
 }
 
 void MainWindow::createDemoSphere()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto created = ms3d::geometry::makeSphere(40.0);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed sphere r=40 mm"),
-                    tr("Could not create or display the sphere."));
+    appendPrimitive(ms3d::features::FeatureKind::Sphere, {{"radius", 40}});
+    recomputeAndShow(tr("Displayed sphere feature r=40 mm"));
 }
 
 void MainWindow::createDemoExtrusion()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto created = ms3d::geometry::makeExtrusion(80.0, 50.0, 20.0);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed extrusion 80 × 50 × 20 mm"),
-                    tr("Could not create or display the extrusion."));
+    appendPrimitive(ms3d::features::FeatureKind::Extrusion,
+                    {{"width", 80}, {"depth", 50}, {"height", 20}});
+    recomputeAndShow(tr("Displayed extrusion feature 80 × 50 × 20 mm"));
 }
 
 void MainWindow::createDemoRevolution()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto created = ms3d::geometry::makeRevolution(15.0, 30.0, 50.0);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed revolution tube (r_in=15 r_out=30 h=50 mm)"),
-                    tr("Could not create or display the revolution."));
+    appendPrimitive(ms3d::features::FeatureKind::Revolution,
+                    {{"innerRadius", 15}, {"outerRadius", 30}, {"height", 50}});
+    recomputeAndShow(tr("Displayed revolution feature (r_in=15 r_out=30 h=50 mm)"));
 }
 
 void MainWindow::createDemoBooleanUnion()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto a = ms3d::geometry::makeBox(80.0, 50.0, 40.0);
-    const TopoDS_Solid b = translatedBox(60.0, 40.0, 50.0, 30.0, 15.0, 10.0);
-    const auto created = ms3d::geometry::booleanUnion(a.solid, b);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = a.ok && created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed boolean union of two boxes"),
-                    tr("Could not create or display the boolean union."));
+    appendBooleanDemo(ms3d::features::FeatureKind::BooleanUnion);
+    recomputeAndShow(tr("Displayed boolean union feature"));
 }
 
 void MainWindow::createDemoBooleanCut()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto a = ms3d::geometry::makeBox(80.0, 50.0, 40.0);
-    const TopoDS_Solid b = translatedBox(60.0, 40.0, 50.0, 30.0, 15.0, 10.0);
-    const auto created = ms3d::geometry::booleanCut(a.solid, b);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = a.ok && created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed boolean subtract of two boxes"),
-                    tr("Could not create or display the boolean subtract."));
+    appendBooleanDemo(ms3d::features::FeatureKind::BooleanCut);
+    recomputeAndShow(tr("Displayed boolean subtract feature"));
 }
 
 void MainWindow::createDemoBooleanCommon()
 {
-    if (!m_view) {
-        return;
-    }
-    m_view->setSketchTool(ms3d::viewport::SketchTool::None);
-    const auto a = ms3d::geometry::makeBox(80.0, 50.0, 40.0);
-    const TopoDS_Solid b = translatedBox(60.0, 40.0, 50.0, 30.0, 15.0, 10.0);
-    const auto created = ms3d::geometry::booleanCommon(a.solid, b);
-    QString error = QString::fromStdString(created.error);
-    const bool ok = a.ok && created.ok && m_view->displaySolid(created.solid, &error);
-    showSolidResult(ok, error, tr("Displayed boolean intersect of two boxes"),
-                    tr("Could not create or display the boolean intersect."));
+    appendBooleanDemo(ms3d::features::FeatureKind::BooleanCommon);
+    recomputeAndShow(tr("Displayed boolean intersect feature"));
 }
 
 void MainWindow::fitAllView()
@@ -520,6 +549,64 @@ void MainWindow::onSketchSelection(int entityId)
         break;
     }
     statusBar()->showMessage(tr("Selected %1 (id %2)").arg(kind).arg(entityId), 4000);
+}
+
+void MainWindow::onFeatureListSelection()
+{
+    if (!m_featureList || !m_featureList->currentItem()) {
+        return;
+    }
+    const int id = m_featureList->currentItem()->data(Qt::UserRole).toInt();
+    const auto feature = m_history.find(id);
+    if (!feature) {
+        return;
+    }
+    if (feature->valid && m_view) {
+        m_view->setSketchTool(ms3d::viewport::SketchTool::None);
+        QString error;
+        m_view->displaySolid(feature->result, &error);
+    }
+    statusBar()->showMessage(tr("Feature %1 selected").arg(QString::fromStdString(feature->name)),
+                             3000);
+}
+
+void MainWindow::editSelectedFeature()
+{
+    if (!m_featureList || !m_featureList->currentItem()) {
+        statusBar()->showMessage(tr("Select a feature in the history list"), 4000);
+        return;
+    }
+    const int id = m_featureList->currentItem()->data(Qt::UserRole).toInt();
+    const auto feature = m_history.find(id);
+    if (!feature) {
+        return;
+    }
+    if (feature->params.empty()) {
+        QMessageBox::information(this, tr("Edit feature"),
+                                 tr("This feature has no editable numeric parameters."));
+        return;
+    }
+
+    FeatureEditDialog dialog(*feature, this);
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    std::string err;
+    if (!m_history.setParameters(id, dialog.parameters(), &err)) {
+        QMessageBox::critical(this, tr("Edit feature"), QString::fromStdString(err));
+        return;
+    }
+    recomputeAndShow(tr("Recomputed after editing %1").arg(QString::fromStdString(feature->name)));
+}
+
+void MainWindow::clearFeatureHistory()
+{
+    m_history.clear();
+    refreshFeatureList();
+    if (m_view) {
+        m_view->clearSolidDisplay();
+    }
+    statusBar()->showMessage(tr("Feature history cleared"), 3000);
 }
 
 } // namespace ms3d::ui

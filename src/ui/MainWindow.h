@@ -1,5 +1,6 @@
 #pragma once
 
+#include "features/FeatureHistory.h"
 #include "sketch/Sketch.h"
 #include "viewport/OcctView.h"
 
@@ -8,6 +9,7 @@
 #include <memory>
 
 class QAction;
+class QListWidget;
 class QMenu;
 
 namespace ms3d::ui {
@@ -44,6 +46,10 @@ public slots:
     void onSketchStatus(const QString& message);
     void onSketchSelection(int entityId);
 
+    void editSelectedFeature();
+    void clearFeatureHistory();
+    void onFeatureListSelection();
+
 protected:
     void changeEvent(QEvent* event) override;
     void showEvent(QShowEvent* event) override;
@@ -55,6 +61,11 @@ private:
                          const QString& failMessage);
     void enterSketchTool(ms3d::viewport::SketchTool tool);
     void setSketchPlane(ms3d::sketch::PlaneId plane);
+    void refreshFeatureList();
+    bool recomputeAndShow(const QString& successMessage);
+    int appendPrimitive(ms3d::features::FeatureKind kind,
+                        const std::vector<ms3d::features::FeatureParam>& params);
+    int appendBooleanDemo(ms3d::features::FeatureKind kind);
 
     QMenu* m_fileMenu = nullptr;
     QMenu* m_createMenu = nullptr;
@@ -85,8 +96,12 @@ private:
     QAction* m_constraintVAction = nullptr;
     QAction* m_validateSketchAction = nullptr;
     QAction* m_clearSketchAction = nullptr;
+    QAction* m_editFeatureAction = nullptr;
+    QAction* m_clearHistoryAction = nullptr;
+    QListWidget* m_featureList = nullptr;
     ms3d::viewport::OcctView* m_view = nullptr;
     std::unique_ptr<ms3d::sketch::Sketch> m_sketch;
+    ms3d::features::FeatureHistory m_history;
     int m_selectedEntityId = -1;
     bool m_demoBoxLoaded = false;
 };
