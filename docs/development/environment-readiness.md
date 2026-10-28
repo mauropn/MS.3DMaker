@@ -116,5 +116,5 @@ All smoke tests passed (scripts/run_smokes.ps1)
 | 0 Environment | **Complete** (Windows verified; Linux script added) |
 | 1 REA + git remote | **Complete** (MCP `user-rea` ready; repo linked) |
 | 2 i18n foundation | **Complete** — see `phase2-i18n.md` + ADR 0001 |
-| 3 Governance docs | **Complete** — license ADR Proposed (await founder choice) |
+| 3 Governance + license | **Complete** — MIT OR Apache-2.0 (SolidCraft-style dual license) |
 | 4 First CAD prototype | Pending founder approval |

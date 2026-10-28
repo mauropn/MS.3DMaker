@@ -10,7 +10,7 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 0 — Windows toolchain verified; Linux installer script available  
 - Phase 1 — REA MCP configured; git remote connected  
 - Phase 2 — Internationalization foundation (`en` + `pt-BR`)  
-- Phase 3 — Governance docs published; **application license Proposed** (see below)
+- Phase 3 — Governance docs; license locked as **MIT OR Apache-2.0** (same model as SolidCraft)
 
 ## Community
 
@@ -46,4 +46,9 @@ Every user-facing string must use Qt `tr()` / `translate()`. See [translations/C
 
 ## License
 
-Application license is **not locked yet**. Trade-offs and the recommended choice (**Apache-2.0**) are in [docs/decisions/0002-project-license.md](docs/decisions/0002-project-license.md). Qt and OCCT remain LGPL-family dependencies regardless of the application license — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MS3DMaker is dual-licensed under **MIT OR Apache-2.0**, at your option (same approach as [SolidCraft](https://github.com/tangency-labs/solidcraft)):
+
+- [LICENSE](LICENSE) · [LICENSE-MIT](LICENSE-MIT) · [LICENSE-APACHE](LICENSE-APACHE) · [NOTICE](NOTICE)
+- ADR: [docs/decisions/0002-project-license.md](docs/decisions/0002-project-license.md)
+
+Qt and OCCT remain LGPL-family dependencies — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

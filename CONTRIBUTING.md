@@ -37,7 +37,7 @@ Use GitHub issue templates for bugs and feature requests. Mark only genuinely sm
 
 ## License of contributions
 
-By submitting a contribution, you agree that it may be distributed under the project's eventual public license (see [docs/decisions/0002-project-license.md](docs/decisions/0002-project-license.md)). Until `LICENSE` is locked, contributions are accepted under the understanding that they will be relicensed to the founder-chosen OSI license without additional permission hurdles.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in MS3DMaker is dual-licensed under **MIT OR Apache-2.0** (see [LICENSE](LICENSE)), without additional terms.
 
 ## Security
 

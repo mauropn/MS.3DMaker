@@ -11,4 +11,4 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/). Versioning w
 - Phase 0: Windows environment verification; Linux `scripts/setup-linux.sh`; Qt/OCCT smoke examples
 - Phase 1: REA MCP notes; repository linked to https://github.com/mauropn/MS.3DMaker
 - Phase 2: i18n foundation (`en` / `pt-BR`), `LanguageService`, Preferences language UI, ADR 0001
-- Phase 3: Founder-led governance docs; license ADR 0002 (Proposed)
+- Phase 3: Founder-led governance docs; license locked as MIT OR Apache-2.0 (ADR 0002 Accepted, aligned with SolidCraft)

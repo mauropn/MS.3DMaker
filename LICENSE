@@ -1,0 +1,13 @@
+MS3DMaker is dual-licensed under:
+
+- Apache License, Version 2.0 (see LICENSE-APACHE), or
+- MIT License (see LICENSE-MIT),
+
+at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in MS3DMaker shall be under the same dual license terms, without
+additional conditions.
+
+Third-party components (including Qt and Open CASCADE Technology) retain their
+own licenses — see THIRD_PARTY_NOTICES.md and NOTICE.

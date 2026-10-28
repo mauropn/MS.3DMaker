@@ -1,0 +1,15 @@
+MS3DMaker
+Copyright (c) 2026 MS3DMaker contributors
+Project lead: https://github.com/mauropn
+
+Licensed under the MIT License or the Apache License, Version 2.0, at your option
+(LICENSE-MIT, LICENSE-APACHE).
+
+This product includes or links against third-party software. See
+THIRD_PARTY_NOTICES.md for Qt, Open CASCADE Technology (OCCT), and other
+dependencies. Those components remain under their respective licenses.
+
+MS3DMaker is an independent project and is not affiliated with, sponsored by,
+or endorsed by Autodesk, Inc. or any other commercial CAD vendor. Names of
+third-party products may appear only for descriptive compatibility or workflow
+comparison and remain the trademarks of their respective owners.

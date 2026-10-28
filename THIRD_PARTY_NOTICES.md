@@ -1,6 +1,6 @@
 # Third-party notices
 
-MS3DMaker depends on third-party components. Their licenses apply to those components independently of the (still Proposed) application license — see [docs/decisions/0002-project-license.md](docs/decisions/0002-project-license.md).
+MS3DMaker depends on third-party components. Their licenses apply to those components independently of the application dual license (**MIT OR Apache-2.0** — see [LICENSE](LICENSE)).
 
 ## Qt
 
