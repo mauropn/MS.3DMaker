@@ -1,6 +1,8 @@
 #include "MainWindow.h"
+#include "AiAssistDialog.h"
 #include "FeatureEditDialog.h"
 #include "PreferencesDialog.h"
+#include "ai/AiExecutor.h"
 #include "io/StepIO.h"
 #include "viewport/OcctView.h"
 
@@ -69,6 +71,7 @@ void MainWindow::buildUi()
     m_sketchMenu = menuBar()->addMenu(QString());
     m_assemblyMenu = menuBar()->addMenu(QString());
     m_drawingMenu = menuBar()->addMenu(QString());
+    m_toolsMenu = menuBar()->addMenu(QString());
     m_editMenu = menuBar()->addMenu(QString());
     m_viewMenu = menuBar()->addMenu(QString());
     m_helpMenu = menuBar()->addMenu(QString());
@@ -220,6 +223,10 @@ void MainWindow::buildUi()
     connect(m_drawingIsoAction, &QAction::triggered, this, &MainWindow::drawingIso);
     m_drawingMenu->addAction(m_drawingIsoAction);
 
+    m_aiAssistAction = new QAction(this);
+    connect(m_aiAssistAction, &QAction::triggered, this, &MainWindow::openAiAssist);
+    m_toolsMenu->addAction(m_aiAssistAction);
+
     m_editFeatureAction = new QAction(this);
     connect(m_editFeatureAction, &QAction::triggered, this, &MainWindow::editSelectedFeature);
     m_editMenu->addAction(m_editFeatureAction);
@@ -249,6 +256,7 @@ void MainWindow::retranslateUi()
     m_sketchMenu->setTitle(tr("Sketch"));
     m_assemblyMenu->setTitle(tr("Assembly"));
     m_drawingMenu->setTitle(tr("Drawing"));
+    m_toolsMenu->setTitle(tr("Tools"));
     m_editMenu->setTitle(tr("Edit"));
     m_viewMenu->setTitle(tr("View"));
     m_helpMenu->setTitle(tr("Help"));
@@ -285,6 +293,7 @@ void MainWindow::retranslateUi()
     m_drawingTopAction->setText(tr("Top View (HLR)"));
     m_drawingRightAction->setText(tr("Right View (HLR)"));
     m_drawingIsoAction->setText(tr("Isometric View (HLR)"));
+    m_aiAssistAction->setText(tr("AI Assist…"));
     m_editFeatureAction->setText(tr("Edit Feature Parameters…"));
     m_clearHistoryAction->setText(tr("Clear Feature History"));
     m_preferencesAction->setText(tr("Preferences…"));
@@ -569,6 +578,35 @@ void MainWindow::drawingRight()
 void MainWindow::drawingIso()
 {
     showDrawingView(ms3d::drawing::ViewOrientation::Iso);
+}
+
+void MainWindow::openAiAssist()
+{
+    AiAssistDialog dialog(this);
+    if (dialog.exec() != QDialog::Accepted || !dialog.hasValidPlan()) {
+        return;
+    }
+
+    const auto confirm = QMessageBox::question(
+        this, tr("Confirm AI plan"),
+        tr("Execute %1 validated modeling step(s) through Feature History?")
+            .arg(dialog.plan().steps.size()),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (confirm != QMessageBox::Yes) {
+        return;
+    }
+
+    const auto executed = ms3d::ai::executePlan(m_document.history(), dialog.plan());
+    refreshFeatureList();
+    if (!executed.ok) {
+        QMessageBox::critical(this, tr("AI Assist"), QString::fromStdString(executed.message));
+        statusBar()->showMessage(tr("AI plan execution failed"), 5000);
+        return;
+    }
+
+    m_document.markDirty();
+    updateWindowTitle();
+    recomputeAndShow(tr("AI plan executed (%1 features)").arg(executed.createdFeatureIds.size()));
 }
 
 void MainWindow::fileImportStep()

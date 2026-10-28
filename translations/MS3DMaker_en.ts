@@ -282,6 +282,34 @@
         <translation>Drawing</translation>
     </message>
     <message>
+        <source>Tools</source>
+        <translation>Tools</translation>
+    </message>
+    <message>
+        <source>AI Assist…</source>
+        <translation>AI Assist…</translation>
+    </message>
+    <message>
+        <source>Confirm AI plan</source>
+        <translation>Confirm AI plan</translation>
+    </message>
+    <message>
+        <source>Execute %1 validated modeling step(s) through Feature History?</source>
+        <translation>Execute %1 validated modeling step(s) through Feature History?</translation>
+    </message>
+    <message>
+        <source>AI Assist</source>
+        <translation>AI Assist</translation>
+    </message>
+    <message>
+        <source>AI plan execution failed</source>
+        <translation>AI plan execution failed</translation>
+    </message>
+    <message>
+        <source>AI plan executed (%1 features)</source>
+        <translation>AI plan executed (%1 features)</translation>
+    </message>
+    <message>
         <source>Add Current Solid</source>
         <translation>Add Current Solid</translation>
     </message>
@@ -546,6 +574,51 @@
     <message>
         <source>Feature history cleared</source>
         <translation>Feature history cleared</translation>
+    </message>
+</context>
+<context>
+    <name>ms3d::ui::AiAssistDialog</name>
+    <message>
+        <source>AI Assist</source>
+        <translation>AI Assist</translation>
+    </message>
+    <message>
+        <source>Describe what to create (constrained planner — no arbitrary code):</source>
+        <translation>Describe what to create (constrained planner — no arbitrary code):</translation>
+    </message>
+    <message>
+        <source>Generate plan</source>
+        <translation>Generate plan</translation>
+    </message>
+    <message>
+        <source>Proposed operations (preview — confirm to execute):</source>
+        <translation>Proposed operations (preview — confirm to execute):</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation>Notes</translation>
+    </message>
+    <message>
+        <source>Execute plan</source>
+        <translation>Execute plan</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <source>%1. %2 — %3</source>
+        <translation>%1. %2 — %3</translation>
+    </message>
+    <message>
+        <source> (inputs %1, %2)</source>
+        <translation> (inputs %1, %2)</translation>
+    </message>
+    <message>
+        <source>Plan failed validation:
+%1</source>
+        <translation>Plan failed validation:
+%1</translation>
     </message>
 </context>
 <context>

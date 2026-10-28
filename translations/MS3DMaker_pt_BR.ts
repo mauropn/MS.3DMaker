@@ -282,6 +282,34 @@
         <translation>Desenho</translation>
     </message>
     <message>
+        <source>Tools</source>
+        <translation>Ferramentas</translation>
+    </message>
+    <message>
+        <source>AI Assist…</source>
+        <translation>Assistente de IA…</translation>
+    </message>
+    <message>
+        <source>Confirm AI plan</source>
+        <translation>Confirmar plano de IA</translation>
+    </message>
+    <message>
+        <source>Execute %1 validated modeling step(s) through Feature History?</source>
+        <translation>Executar %1 etapa(s) de modelagem validada(s) pelo Histórico de recursos?</translation>
+    </message>
+    <message>
+        <source>AI Assist</source>
+        <translation>Assistente de IA</translation>
+    </message>
+    <message>
+        <source>AI plan execution failed</source>
+        <translation>Falha na execução do plano de IA</translation>
+    </message>
+    <message>
+        <source>AI plan executed (%1 features)</source>
+        <translation>Plano de IA executado (%1 recursos)</translation>
+    </message>
+    <message>
         <source>Add Current Solid</source>
         <translation>Adicionar sólido atual</translation>
     </message>
@@ -546,6 +574,51 @@
     <message>
         <source>Feature history cleared</source>
         <translation>Histórico de recursos limpo</translation>
+    </message>
+</context>
+<context>
+    <name>ms3d::ui::AiAssistDialog</name>
+    <message>
+        <source>AI Assist</source>
+        <translation>Assistente de IA</translation>
+    </message>
+    <message>
+        <source>Describe what to create (constrained planner — no arbitrary code):</source>
+        <translation>Descreva o que criar (planejador restrito — sem código arbitrário):</translation>
+    </message>
+    <message>
+        <source>Generate plan</source>
+        <translation>Gerar plano</translation>
+    </message>
+    <message>
+        <source>Proposed operations (preview — confirm to execute):</source>
+        <translation>Operações propostas (prévia — confirme para executar):</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation>Notas</translation>
+    </message>
+    <message>
+        <source>Execute plan</source>
+        <translation>Executar plano</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
+    </message>
+    <message>
+        <source>%1. %2 — %3</source>
+        <translation>%1. %2 — %3</translation>
+    </message>
+    <message>
+        <source> (inputs %1, %2)</source>
+        <translation> (entradas %1, %2)</translation>
+    </message>
+    <message>
+        <source>Plan failed validation:
+%1</source>
+        <translation>O plano falhou na validação:
+%1</translation>
     </message>
 </context>
 <context>

@@ -17,7 +17,8 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 5.3 — Feature history: params, deps, recompute, edit (see [docs/development/phase5-m4-feature-history.md](docs/development/phase5-m4-feature-history.md))  
 - Phase 5.4 — Documents: `.ms3d` New/Open/Save/Save As with schema versioning (see [docs/development/phase5-m5-documents.md](docs/development/phase5-m5-documents.md))  
 - Phase 5.5 — STEP interchange (see [docs/development/phase5-m6-step.md](docs/development/phase5-m6-step.md))  
-- Phase 5.6 — Assemblies & drawings (see [docs/development/phase5-m7-assemblies-drawings.md](docs/development/phase5-m7-assemblies-drawings.md))
+- Phase 5.6 — Assemblies & drawings (see [docs/development/phase5-m7-assemblies-drawings.md](docs/development/phase5-m7-assemblies-drawings.md))  
+- Phase 5.7 — AI Assist (see [docs/development/phase5-m8-ai-assist.md](docs/development/phase5-m8-ai-assist.md))
 
 ## Community
 

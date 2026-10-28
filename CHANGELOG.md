@@ -19,3 +19,4 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/). Versioning w
 - Phase 5.4 (Milestone 5): Document management — `.ms3d` JSON save/load, schema v1, corruption checks, refuse incompatible overwrite; File New/Open/Save/Save As
 - Phase 5.5 (Milestone 6): STEP import/export (AP214IS) via OCCT TKDESTEP; validity checks; round-trip test; File Import/Export STEP
 - Phase 5.6 (Milestone 7): Assemblies (component instances + transforms) and drawings (HLR Front/Top/Right/Iso) as separate session capabilities
+- Phase 5.7 (Milestone 8): AI Assist — constrained planner → validated AiPlan → confirm → FeatureHistory execute; ADR 0004; tx/ty/tz placement params

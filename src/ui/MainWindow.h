@@ -65,6 +65,8 @@ public slots:
     void drawingRight();
     void drawingIso();
 
+    void openAiAssist();
+
 protected:
     void changeEvent(QEvent* event) override;
     void showEvent(QShowEvent* event) override;
@@ -91,6 +93,7 @@ private:
     QMenu* m_sketchMenu = nullptr;
     QMenu* m_assemblyMenu = nullptr;
     QMenu* m_drawingMenu = nullptr;
+    QMenu* m_toolsMenu = nullptr;
     QMenu* m_editMenu = nullptr;
     QMenu* m_viewMenu = nullptr;
     QMenu* m_helpMenu = nullptr;
@@ -133,6 +136,7 @@ private:
     QAction* m_drawingTopAction = nullptr;
     QAction* m_drawingRightAction = nullptr;
     QAction* m_drawingIsoAction = nullptr;
+    QAction* m_aiAssistAction = nullptr;
     QListWidget* m_featureList = nullptr;
     ms3d::viewport::OcctView* m_view = nullptr;
     TopoDS_Shape shapeForStepExport() const;

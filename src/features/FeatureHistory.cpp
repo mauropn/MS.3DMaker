@@ -1,5 +1,11 @@
 #include "FeatureHistory.h"
 
+#include <BRepBuilderAPI_Transform.hxx>
+#include <Standard_Failure.hxx>
+#include <TopoDS.hxx>
+#include <gp_Trsf.hxx>
+#include <gp_Vec.hxx>
+
 #include <algorithm>
 #include <queue>
 #include <sstream>
@@ -275,23 +281,48 @@ bool FeatureHistory::setParameters(int id, const std::vector<FeatureParam>& para
 ms3d::geometry::SolidResult FeatureHistory::evaluate(const Feature& feature) const
 {
     using ms3d::geometry::SolidResult;
+
+    auto applyTranslation = [&](SolidResult created) -> SolidResult {
+        if (!created.ok) {
+            return created;
+        }
+        const double tx = paramOr(feature, "tx", 0.0);
+        const double ty = paramOr(feature, "ty", 0.0);
+        const double tz = paramOr(feature, "tz", 0.0);
+        if (tx == 0.0 && ty == 0.0 && tz == 0.0) {
+            return created;
+        }
+        try {
+            gp_Trsf trsf;
+            trsf.SetTranslation(gp_Vec(tx, ty, tz));
+            BRepBuilderAPI_Transform xform(created.solid, trsf);
+            created.solid = TopoDS::Solid(xform.Shape());
+            return created;
+        } catch (const Standard_Failure& ex) {
+            created.ok = false;
+            created.error = ex.GetMessageString() ? ex.GetMessageString()
+                                                  : "Failed to apply feature translation";
+            return created;
+        }
+    };
+
     switch (feature.kind) {
     case FeatureKind::Box:
-        return ms3d::geometry::makeBox(paramOr(feature, "dx", 0), paramOr(feature, "dy", 0),
-                                       paramOr(feature, "dz", 0));
+        return applyTranslation(ms3d::geometry::makeBox(
+            paramOr(feature, "dx", 0), paramOr(feature, "dy", 0), paramOr(feature, "dz", 0)));
     case FeatureKind::Cylinder:
-        return ms3d::geometry::makeCylinder(paramOr(feature, "radius", 0),
-                                            paramOr(feature, "height", 0));
+        return applyTranslation(ms3d::geometry::makeCylinder(paramOr(feature, "radius", 0),
+                                                             paramOr(feature, "height", 0)));
     case FeatureKind::Sphere:
-        return ms3d::geometry::makeSphere(paramOr(feature, "radius", 0));
+        return applyTranslation(ms3d::geometry::makeSphere(paramOr(feature, "radius", 0)));
     case FeatureKind::Extrusion:
-        return ms3d::geometry::makeExtrusion(paramOr(feature, "width", 0),
-                                             paramOr(feature, "depth", 0),
-                                             paramOr(feature, "height", 0));
+        return applyTranslation(ms3d::geometry::makeExtrusion(paramOr(feature, "width", 0),
+                                                              paramOr(feature, "depth", 0),
+                                                              paramOr(feature, "height", 0)));
     case FeatureKind::Revolution:
-        return ms3d::geometry::makeRevolution(paramOr(feature, "innerRadius", 0),
-                                              paramOr(feature, "outerRadius", 0),
-                                              paramOr(feature, "height", 0));
+        return applyTranslation(ms3d::geometry::makeRevolution(
+            paramOr(feature, "innerRadius", 0), paramOr(feature, "outerRadius", 0),
+            paramOr(feature, "height", 0)));
     case FeatureKind::BooleanUnion:
     case FeatureKind::BooleanCut:
     case FeatureKind::BooleanCommon: {

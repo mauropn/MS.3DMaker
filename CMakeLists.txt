@@ -39,6 +39,14 @@ find_package(OpenCASCADE REQUIRED)
 
 set(MS3D_SOURCES
   src/app/main.cpp
+  src/ai/AiExecutor.cpp
+  src/ai/AiExecutor.h
+  src/ai/AiPlanner.cpp
+  src/ai/AiPlanner.h
+  src/ai/AiTypes.cpp
+  src/ai/AiTypes.h
+  src/ai/AiValidator.cpp
+  src/ai/AiValidator.h
   src/assembly/Assembly.cpp
   src/assembly/Assembly.h
   src/document/Document.cpp
@@ -57,6 +65,8 @@ set(MS3D_SOURCES
   src/sketch/Sketch.cpp
   src/sketch/Sketch.h
   src/sketch/SketchTypes.h
+  src/ui/AiAssistDialog.cpp
+  src/ui/AiAssistDialog.h
   src/ui/FeatureEditDialog.cpp
   src/ui/FeatureEditDialog.h
   src/ui/MainWindow.cpp
@@ -366,6 +376,45 @@ if(MS3D_BUILD_TESTS)
     endforeach()
   endif()
   add_test(NAME drawing COMMAND test_drawing)
+
+  add_executable(test_ai
+    tests/test_ai.cpp
+    src/ai/AiExecutor.cpp
+    src/ai/AiExecutor.h
+    src/ai/AiPlanner.cpp
+    src/ai/AiPlanner.h
+    src/ai/AiTypes.cpp
+    src/ai/AiTypes.h
+    src/ai/AiValidator.cpp
+    src/ai/AiValidator.h
+    src/features/FeatureHistory.cpp
+    src/features/FeatureHistory.h
+    src/features/FeatureTypes.h
+    src/geometry/SolidFactory.cpp
+    src/geometry/SolidFactory.h
+  )
+  target_include_directories(test_ai PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${OpenCASCADE_INCLUDE_DIR}
+  )
+  target_link_libraries(test_ai PRIVATE
+    Qt6::Test
+    TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim
+    TKBO TKBool TKShHealing
+  )
+  if(WIN32 AND DEFINED OpenCASCADE_BINARY_DIR)
+    foreach(_lib TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKShHealing)
+      if(EXISTS "${OpenCASCADE_BINARY_DIR}/${_lib}.dll")
+        add_custom_command(TARGET test_ai POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${OpenCASCADE_BINARY_DIR}/${_lib}.dll"
+            "$<TARGET_FILE_DIR:test_ai>"
+          VERBATIM
+        )
+      endif()
+    endforeach()
+  endif()
+  add_test(NAME ai COMMAND test_ai)
 endif()
 
 install(TARGETS MS3DMaker RUNTIME DESTINATION bin)
