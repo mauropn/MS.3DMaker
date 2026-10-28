@@ -24,6 +24,10 @@
         <translation>Ajuda</translation>
     </message>
     <message>
+        <source>New Box</source>
+        <translation>Nova caixa</translation>
+    </message>
+    <message>
         <source>Preferences…</source>
         <translation>Preferências…</translation>
     </message>
@@ -32,20 +36,38 @@
         <translation>Sair</translation>
     </message>
     <message>
+        <source>Fit All</source>
+        <translation>Enquadrar tudo</translation>
+    </message>
+    <message>
         <source>About MS3DMaker</source>
         <translation>Sobre o MS3DMaker</translation>
     </message>
     <message>
-        <source>MS3DMaker is ready. Open Preferences to change the language.</source>
-        <translation>O MS3DMaker está pronto. Abra Preferências para alterar o idioma.</translation>
-    </message>
-    <message>
-        <source>Ready</source>
-        <translation>Pronto</translation>
+        <source>Orbit: Shift+LMB drag · Pan: MMB or Alt+LMB · Zoom: wheel / RMB drag · Select: LMB</source>
+        <translation>Órbita: Shift+botão esquerdo · Pan: botão do meio ou Alt+esquerdo · Zoom: roda / botão direito · Seleção: botão esquerdo</translation>
     </message>
     <message>
         <source>MS3DMaker is an independent open-source parametric 3D CAD application.</source>
         <translation>O MS3DMaker é um aplicativo CAD 3D paramétrico independente e de código aberto.</translation>
+    </message>
+    <message>
+        <source>Geometry error</source>
+        <translation>Erro de geometria</translation>
+    </message>
+    <message>
+        <source>Could not create or display the box.
+%1</source>
+        <translation>Não foi possível criar ou exibir a caixa.
+%1</translation>
+    </message>
+    <message>
+        <source>Box creation failed</source>
+        <translation>Falha ao criar a caixa</translation>
+    </message>
+    <message>
+        <source>Displayed box 100 × 60 × 30 mm</source>
+        <translation>Caixa exibida 100 × 60 × 30 mm</translation>
     </message>
 </context>
 <context>

@@ -10,7 +10,8 @@ Independent open-source parametric 3D CAD application (C++ / Qt / OCCT).
 - Phase 0 — Windows toolchain verified; Linux installer script available  
 - Phase 1 — REA MCP configured; git remote connected  
 - Phase 2 — Internationalization foundation (`en` + `pt-BR`)  
-- Phase 3 — Governance docs; license locked as **MIT OR Apache-2.0** (same model as SolidCraft)
+- Phase 3 — Governance docs; license locked as **MIT OR Apache-2.0** (same model as SolidCraft)  
+- Phase 4 — OCCT 3D viewport, navigation, selection, demo box solid (see [docs/development/phase4-viewport.md](docs/development/phase4-viewport.md))
 
 ## Community
 

@@ -3,8 +3,11 @@
 #include <QMainWindow>
 
 class QAction;
-class QLabel;
 class QMenu;
+
+namespace ms3d::viewport {
+class OcctView;
+}
 
 namespace ms3d::ui {
 
@@ -16,9 +19,12 @@ public:
 public slots:
     void openPreferences();
     void showAbout();
+    void createDemoBox();
+    void fitAllView();
 
 protected:
     void changeEvent(QEvent* event) override;
+    void showEvent(QShowEvent* event) override;
 
 private:
     void retranslateUi();
@@ -31,7 +37,10 @@ private:
     QAction* m_preferencesAction = nullptr;
     QAction* m_quitAction = nullptr;
     QAction* m_aboutAction = nullptr;
-    QLabel* m_statusLabel = nullptr;
+    QAction* m_createBoxAction = nullptr;
+    QAction* m_fitAllAction = nullptr;
+    ms3d::viewport::OcctView* m_view = nullptr;
+    bool m_demoBoxLoaded = false;
 };
 
 } // namespace ms3d::ui
